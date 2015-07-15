@@ -1,0 +1,29 @@
+{
+    "name": "certi/legacy2psr4",
+    "license": "see LICENSE file",
+    "type": "project",
+    "description": "extends legacy code and adds namespaces",
+    "autoload": {
+        "psr-4": {
+            "Certi\\LegacypsrFour\\": "src/",
+            "Certi\\LegacypsrFour\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/finder": "~2.7",
+        "symfony/console": "~2.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.5.0",
+        "mockery/mockery": "dev-master"
+    },
+    "config": {
+        "bin-dir": "vendor/bin"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    }
+}
