@@ -9,4 +9,5 @@ php:
 install:
       - composer install --dev
 
-script: phpunit --coverage-text
+script:
+      - vendor/bin/phpunit --coverage-text
