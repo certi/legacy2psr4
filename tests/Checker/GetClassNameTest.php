@@ -47,13 +47,13 @@ class GetClassNameTest extends \PHPUnit_Framework_TestCase
                 'expected' => 'Test',
             ],
 
-            [ #7
+            [ #8
                 'content'  => 'final class AbstractClassTest' . PHP_EOL . '{',
                 'expected' => 'AbstractClassTest',
             ],
 
-            ## negativ
-            [ #?
+            # negativ
+            [ #9
                 'content'  => 'var a = hasClass();',
                 'expected' => null,
             ],

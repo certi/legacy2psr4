@@ -50,13 +50,10 @@ class GetUsesNamespacesTest extends \PHPUnit_Framework_TestCase
                     ],
                 ]
             ],
-            [ #1
+            [ #3
                 'content'  => '  $session->get("usersettings_lang");' . PHP_EOL ,
                 'expected' => []
             ],
-
-
-
 
 
         ];
