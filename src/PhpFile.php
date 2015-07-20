@@ -27,16 +27,27 @@ class PhpFile
 
     protected $instantiations = [];
 
+    protected $staticCalls = [];
+
     public function __construct(Finder\SplFileInfo $file, $basePath)
     {
         $this->file            = $file;
         $this->realPath        = $file->getRealPath();
         $this->currentFileName = $file->getFilename();
         $this->basePath        = realpath($basePath);
-
+        $this->id              = sprintf('%x', crc32($this->getRealPath() . '#' . $file->getContents()));
     }
 
-    public function handle()
+    /**
+     * gets uniq id of this file
+     *
+     * @return string
+     */
+    public function getID() {
+        return $this->id;
+    }
+
+    public function check()
     {
 
         $checkList   = [];
@@ -44,7 +55,7 @@ class PhpFile
         $checkList[] = new Checker\GetNamespace($this);
         $checkList[] = new Checker\GetUsesNamespaces($this);
         $checkList[] = new Checker\GetInstantiations($this);
-        // $checkList[] = new Checker\GeStaticCalls($this);
+        $checkList[] = new Checker\GetStaticCalls($this);
 
         // type hinting
         // interfaces
@@ -110,6 +121,21 @@ class PhpFile
         return $this->instantiations;
     }
 
+    public function addStaticCall($statiCalls)
+    {
+        $this->staticCalls[] = $statiCalls;
+    }
+
+    public function getStaticCalls()
+    {
+        return $this->staticCalls;
+    }
+
+    public function getRealPath()
+    {
+        return $this->realPath;
+    }
+
     /**
      * /home/abc/projects/legacy/something/dirty.php => something/dirty.php
      *
@@ -123,7 +149,8 @@ class PhpFile
 
     public function __toString()
     {
-        $str = '----------------------------------------' . PHP_EOL . 'File: ' . $this->realPath . PHP_EOL
+        $str = '----------------------------------------' . PHP_EOL
+             . 'File: ' . $this->realPath . ' (ID:' . $this->getID() . ')' . PHP_EOL
              . 'Class:' . $this->className . PHP_EOL
              . 'Namespace:' . $this->currentNamespace . PHP_EOL
              . 'Autoloader:' . $this->getAutoloadPath(). PHP_EOL
@@ -134,9 +161,13 @@ class PhpFile
         }
 
         $str .= 'Instantiations:' . PHP_EOL;
-
         foreach ($this->getInstantiations() as $instantiation) {
             $str .= "\t" . $instantiation->class . PHP_EOL;
+        }
+
+        $str .= 'StaticCalls:' . PHP_EOL;
+        foreach ($this->getStaticCalls() as $staticCalls) {
+            $str .= "\t" . $staticCalls->class . PHP_EOL;
         }
 
         return $str;

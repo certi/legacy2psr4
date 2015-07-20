@@ -48,18 +48,31 @@ class Fixer extends Command
             $this->ns . '\\';
         }
 
-        $file_list = $this->getFiles($this->path);
+        $fileList = $this->getFiles($this->path);
 
-        $output->writeln('Found: ' . count($file_list), 'files.');
+        $output->writeln('Found: ' . count($fileList), 'files.');
+
+        $phpFileRegistry = new PhpFileRegistry();
 
         /**
          * @var $file SplFileInfo
          */
-        foreach ($file_list as $file) {
+        foreach ($fileList as $file) {
+
             $fileHandler = new PhpFile($file, $this->path);
-            $fileHandler->handle();
+            $fileHandler->check();
+
+            $phpFileRegistry->addFile($fileHandler);
+
             $output->writeln((string)$fileHandler);
         }
+
+        $output->writeln((string)$phpFileRegistry);
+
+
+        $fixer = new PhpFileFixer($phpFileRegistry);
+        $fixer->run();
+
     }
 
     /**
