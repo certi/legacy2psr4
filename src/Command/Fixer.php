@@ -1,10 +1,12 @@
 <?php
 
-namespace Certi\LegacypsrFour;
+namespace Certi\LegacypsrFour\Command;
 
-use Certi\LegacypsrFour\Lexer;
 use Certi\LegacypsrFour\Checker;
 
+use Certi\LegacypsrFour\PhpFile;
+use Certi\LegacypsrFour\PhpFileFixer;
+use Certi\LegacypsrFour\PhpFileRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -69,9 +71,12 @@ class Fixer extends Command
 
         $output->writeln((string)$phpFileRegistry);
 
+        foreach ($phpFileRegistry->getFileIdList() as $fileID) {
 
-        $fixer = new PhpFileFixer($phpFileRegistry);
-        $fixer->run();
+            $fixer = new PhpFileFixer($fileID, $phpFileRegistry);
+            $fixer->run();
+            $this->output->writeln('FIX file: ' . $fileID);
+        }
 
     }
 

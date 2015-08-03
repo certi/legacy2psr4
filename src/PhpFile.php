@@ -96,6 +96,11 @@ class PhpFile
         return $this->currentNamespace;
     }
 
+    public function getTargetNamespace()
+    {
+        return preg_replace('/', '\\', $this->getAutoloadPath());
+    }
+
     public function getContent()
     {
         return $this->file->getContents();
@@ -142,7 +147,7 @@ class PhpFile
      *
      * @return string
      */
-    protected function getAutoloadPath()
+    public function getAutoloadPath()
     {
         return substr($this->realPath, strlen($this->basePath));
     }
@@ -171,6 +176,22 @@ class PhpFile
         }
 
         return $str;
+    }
+
+    public function inject($line, $position)
+    {
+        $array  = preg_split("/\n/", $this->getContent());
+        $begin  = array_slice($array, 0, $position);
+        $inject = array($line);
+        $end    = array_slice($array, $position, count($array) - $position);
+
+        #$begin  = array('a');
+        #$inject = array('b');
+        #$end    = array('c');
+        $res = array_merge($begin, $inject, $end);
+
+        $array = array_unique($res);
+        return implode(PHP_EOL, $array);
     }
 
 }

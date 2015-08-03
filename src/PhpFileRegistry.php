@@ -6,6 +6,8 @@ namespace Certi\LegacypsrFour;
 class PhpFileRegistry
 {
 
+    const PROP_OBJECT = 'object';
+
     private $fileRegistry      = [];
     private $classRegistry     = [];
     // private $interfaceRegistry = [];
@@ -17,7 +19,35 @@ class PhpFileRegistry
     }
 
     /**
+     * Get the indexed file
+     *
+     * @param string $id File hash
+     *
+     * @return PhpFile
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getPhpFileById($id)
+    {
+        if (!isset($this->fileRegistry[$id])) {
+            throw new \InvalidArgumentException(sprintf('File with ID: %s not found', $id));
+        }
+        return $this->fileRegistry[$id][self::PROP_OBJECT];
+    }
+
+    /**
+     * Gets list of file ids
+     *
+     * @return array
+     */
+    public function getFileIdList()
+    {
+        return array_keys($this->fileRegistry);
+    }
+
+    /**
      * How many files in registry
+     *
      * @return int
      */
     public function countFileRegistry()
@@ -40,7 +70,7 @@ class PhpFileRegistry
         if (isset($this->fileRegistry[$file->getID()])) {
             throw new \Exception(sprintf('File %s was already added', $file->getRealPath()));
         }
-        $this->fileRegistry[$file->getID()]['object'] = $file;
+        $this->fileRegistry[$file->getID()][self::PROP_OBJECT] = $file;
     }
 
 
