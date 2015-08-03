@@ -2,6 +2,7 @@
 
 namespace Certi\LegacypsrFour;
 
+use Certi\LegacypsrFour\Item\Namespaces;
 use Symfony\Component\Finder;
 
 
@@ -86,11 +87,15 @@ class PhpFile
     }
 
 
-    public function setCurrentNamespace($namespace)
+
+    public function setCurrentNamespace(Namespaces $namespace)
     {
         $this->currentNamespace = $namespace;
     }
 
+    /**
+     * @return Namespaces
+     */
     public function getCurrentNamespace()
     {
         return $this->currentNamespace;
@@ -178,19 +183,40 @@ class PhpFile
         return $str;
     }
 
-    public function inject($line, $position)
+
+    /**
+     * Injects new content
+     *
+     * @param string  $content
+     * @param integer $position
+     *
+     * @return string
+     */
+    public function inject($content, $position)
     {
         $array  = preg_split("/\n/", $this->getContent());
         $begin  = array_slice($array, 0, $position);
-        $inject = array($line);
+        $inject = array($content);
         $end    = array_slice($array, $position, count($array) - $position);
 
-        #$begin  = array('a');
-        #$inject = array('b');
-        #$end    = array('c');
         $res = array_merge($begin, $inject, $end);
 
         $array = array_unique($res);
+        return implode(PHP_EOL, $array);
+    }
+
+    /**
+     * Replaces the whole line with new content
+     *
+     * @param string  $newContent
+     * @param integer $position
+     *
+     * @return string
+     */
+    public function replace($newContent, $position)
+    {
+        $array  = preg_split("/" . PHP_EOL . "/", $this->getContent());
+        $array[$position] = $newContent;
         return implode(PHP_EOL, $array);
     }
 

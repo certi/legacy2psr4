@@ -44,7 +44,7 @@ class GetNamespaceTest extends \PHPUnit_Framework_TestCase
         $checker = new GetNamespace($file);
         $checker->execute();
 
-        $this->assertEquals($expected, $file->getCurrentNamespace());
+        $this->assertEquals($expected, $file->getCurrentNamespace()->getName());
 
     }
 

@@ -27,7 +27,7 @@ class NamespaceFixer
     {
         if (null === $this->file->getCurrentNamespace()) {
             $this->addNamespace();
-        } elseif ($this->file->getCurrentNamespace() != $this->file->getCurrentNamespace()) {
+        } elseif ($this->file->getCurrentNamespace()->getName() != $this->file->getCurrentNamespace()) {
             $this->replaceNamespace();
         }
 
@@ -49,16 +49,10 @@ class NamespaceFixer
         throw new Exception('Not implemented yet');
 
         $line = PHP_EOL
-              . 'namespace ' . $this->file->getTargetNamespace();
-
-        if (null !== $this->file->getTargetNamespaceAlias()) {
-            $line .= ' as ' . $this->file->getTargetNamespaceAlias();
-        }
-
-        $line .= ';'
+              . 'namespace ' . $this->file->getTargetNamespace() . ';'
               . PHP_EOL;
 
-        $this->file->inject($line, 2);
+        $this->file->replace($line, $this->file->getCurrentNamespace()->getLine());
     }
 
 }

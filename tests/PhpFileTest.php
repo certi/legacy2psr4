@@ -39,4 +39,39 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($expected, $res);
     }
 
+
+
+    public function dataProviderForReplaceTest()
+    {
+
+        $caseList = [];
+
+        $caseList[] = [
+            'content'    => '<?php' . PHP_EOL . PHP_EOL . 'namespace Abc;' . PHP_EOL,
+            'newContent' => 'namespace Xyz;',
+            'position'   => 2,
+            'expected'   => '<?php' . PHP_EOL . PHP_EOL . 'namespace Xyz;' . PHP_EOL,
+        ];
+
+        return $caseList;
+
+    }
+
+    /**
+     * @test
+     *
+     * @param $content
+     * @param $newContent
+     * @param $position
+     * @param $expected
+     *
+     * @dataProvider dataProviderForReplaceTest
+     */
+    public function replaceTest($content, $newContent, $position, $expected)
+    {
+        $file = Tests\Helper::getFileMock(['getContents' => $content]);
+        $res  = $file->replace($newContent, $position);
+        $this->assertEquals($expected, $res);
+    }
+
 }
