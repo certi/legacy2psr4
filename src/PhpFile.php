@@ -5,7 +5,6 @@ namespace Certi\LegacypsrFour;
 use Certi\LegacypsrFour\Item\Namespaces;
 use Symfony\Component\Finder;
 
-
 class PhpFile
 {
 
@@ -13,6 +12,10 @@ class PhpFile
      * @var Finder\SplFileInfo
      */
     protected $file;
+
+    protected $currentContentRaw;
+
+    protected $currentContentArray = [];
 
     protected $currentFileName;
 
@@ -22,7 +25,7 @@ class PhpFile
 
     protected $className;
 
-    protected $currentNamespace;
+    protected $currentNamespaces = [];
 
     protected $usesNamespaces = [];
 
@@ -37,6 +40,12 @@ class PhpFile
         $this->currentFileName = $file->getFilename();
         $this->basePath        = realpath($basePath);
         $this->id              = sprintf('%x', crc32($this->getRealPath() . '#' . $file->getContents()));
+
+        $this->currentContentRaw  = $file->getContents();
+
+        // @todo: detect file-specific EOL and use it to split the content. workaround:
+        $this->currentContentArray = preg_split('/' . PHP_EOL . '/', $this->currentContentRaw);
+
     }
 
     /**
@@ -87,28 +96,44 @@ class PhpFile
     }
 
 
-
-    public function setCurrentNamespace(Namespaces $namespace)
+    public function addCurrentNamespaces(Namespaces $namespace)
     {
-        $this->currentNamespace = $namespace;
+        $this->currentNamespaces[] = $namespace;
+        if (count($this->currentNamespaces) > 1) {
+            var_dump($this->currentNamespaces);
+            throw new \Exception('Cannot fix files with multiple namespaces. Sorry :(');
+        }
     }
 
     /**
      * @return Namespaces
      */
-    public function getCurrentNamespace()
+    public function getCurrentNamespaces()
     {
-        return $this->currentNamespace;
+        return $this->currentNamespaces;
     }
 
     public function getTargetNamespace()
     {
-        return preg_replace('/', '\\', $this->getAutoloadPath());
+        return preg_replace('#/#', '\\', $this->getAutoloadPath());
     }
 
-    public function getContent()
+    /**
+     * @return string
+     */
+    public function getOriginalContent()
     {
         return $this->file->getContents();
+    }
+
+    public function getCurrentContentRaw()
+    {
+        return $this->currentContentRaw;
+    }
+
+    public function getCurrentContentArray()
+    {
+        return $this->currentContentArray;
     }
 
     public function addUsesNamespaces($namespace)
@@ -161,9 +186,15 @@ class PhpFile
     {
         $str = '----------------------------------------' . PHP_EOL
              . 'File: ' . $this->realPath . ' (ID:' . $this->getID() . ')' . PHP_EOL
-             . 'Class:' . $this->className . PHP_EOL
-             . 'Namespace:' . $this->currentNamespace . PHP_EOL
-             . 'Autoloader:' . $this->getAutoloadPath(). PHP_EOL
+             . 'Class:' . $this->className . PHP_EOL;
+
+        if ($this->getCurrentNamespaces()) {
+            $str .= 'Namespace:' . $this->currentNamespaces[0] . PHP_EOL;
+        } else {
+            $str .= 'Namespace: not found' . PHP_EOL;
+        }
+
+        $str .= 'Autoloader:' . $this->getAutoloadPath(). PHP_EOL
              . 'Uses:' . PHP_EOL;
 
         foreach ($this->getUsesNamespaces() as $namespace) {
@@ -194,7 +225,7 @@ class PhpFile
      */
     public function inject($content, $position)
     {
-        $array  = preg_split("/\n/", $this->getContent());
+        $array  = preg_split("/\n/", $this->getOriginalContent());
         $begin  = array_slice($array, 0, $position);
         $inject = array($content);
         $end    = array_slice($array, $position, count($array) - $position);
@@ -215,7 +246,7 @@ class PhpFile
      */
     public function replace($newContent, $position)
     {
-        $array  = preg_split("/" . PHP_EOL . "/", $this->getContent());
+        $array  = preg_split("/" . PHP_EOL . "/", $this->getOriginalContent());
         $array[$position] = $newContent;
         return implode(PHP_EOL, $array);
     }

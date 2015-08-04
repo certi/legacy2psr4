@@ -13,15 +13,22 @@ class GetNamespaceTest extends \PHPUnit_Framework_TestCase
     {
         $caseList = [
             [ #0
-                'content'  => 'namespace Abc;' . PHP_EOL ,
-                'expected' => 'Abc',
+                'content'   => 'namespace Abc;' . PHP_EOL,
+                'expectedC' => 1,
+                'expectedN' => 'Abc',
             ],
-
             [ #1
-                'content'  => 'namespace Abc\Def\Ghi;' . PHP_EOL ,
-                'expected' => 'Abc\Def\Ghi',
+                'content'   => 'namespace Abc\Def\Ghi;' . PHP_EOL ,
+                'expectedC' => 1,
+                'expectedN' => 'Abc\Def\Ghi',
+            ],
+            [ #2
+                'content'   => '$reg = \'/namespace\s*(\S*);[\s|{]/\'',
+                'expectedC' => 0,
+                'expectedN' => null,
             ],
 
+            //
         ];
 
         return $caseList;
@@ -36,7 +43,7 @@ class GetNamespaceTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider dataProviderForExecuteTest
      */
-    public function executeTest($content, $expected)
+    public function executeTest($content, $expectedCount, $expectedName)
     {
 
         $file = Tests\Helper::getFileMock(['getContents' => $content]);
@@ -44,7 +51,10 @@ class GetNamespaceTest extends \PHPUnit_Framework_TestCase
         $checker = new GetNamespace($file);
         $checker->execute();
 
-        $this->assertEquals($expected, $file->getCurrentNamespace()->getName());
+        $this->assertCount($expectedCount, $file->getCurrentNamespaces());
+        if ($expectedCount == 1) {
+            $this->assertEquals($expectedName, $file->getCurrentNamespaces()[0]->getName());
+        }
 
     }
 

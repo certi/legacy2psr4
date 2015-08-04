@@ -17,7 +17,7 @@ abstract class CheckerAbstract implements CheckerInterface
 
     protected function getContent()
     {
-        return $this->file->getContent();
+        return $this->file->getOriginalContent();
     }
 
 }

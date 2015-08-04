@@ -1,14 +1,13 @@
 <?php
 
-
 namespace Certi\LegacypsrFour\Item;
 
-class Namespaces {
-
+class Namespaces
+{
 
     protected $name;
 
-    protected $line;
+    protected $index;
 
     /**
      * @return mixed
@@ -29,19 +28,22 @@ class Namespaces {
     /**
      * @return mixed
      */
-    public function getLine()
+    public function getIndex()
     {
-        return $this->line;
+        return $this->index;
     }
 
     /**
      * @param mixed $line
      */
-    public function setLine($line)
+    public function setIndex($line)
     {
-        $this->line = $line;
+        $this->index = $line;
     }
 
-
+    public function __toString()
+    {
+        return 'Name:' . $this->name ? $this->name : 'undefined' . ', line:' . $this->line;
+    }
 
 }

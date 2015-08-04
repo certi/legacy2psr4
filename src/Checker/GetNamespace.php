@@ -6,19 +6,28 @@ use Certi\LegacypsrFour\Item\Namespaces;
 
 class GetNamespace extends CheckerAbstract
 {
-
     public function execute()
     {
-        $namespace = new Namespaces();
 
+        foreach ($this->file->getCurrentContentArray() as $index => $content) {
 
-        // has namespace?
-        if (preg_match('/namespace\s*(\S*);[\s|{]/', $this->getContent(), $matches)) {
+            // has namespace?
+            // $reg = '/namespace\s*(\S*);[\s|{]/';
+            $reg = '/^namespace\s*(\S*)\s*;/';
 
-            $namespace->setName($matches[1]);
-            $namespace->setLine(100);// dummy
+            if (preg_match($reg, $content, $matches)) {
 
-            $this->file->setCurrentNamespace($namespace);
+                $namespace = new Namespaces();
+                $namespace->setName($matches[1]);
+                $namespace->setIndex($index);
+
+                $this->file->addCurrentNamespaces($namespace);
+
+            }
+
+        }
+
+        if (count($this->file->getCurrentNamespaces())) {
             return true;
         }
         return false;
