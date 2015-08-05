@@ -146,6 +146,10 @@ class PhpFile
         return $this->usesNamespaces;
     }
 
+    /**
+     * @todo type hinting.
+     * @param $instantiations
+     */
     public function addInstantiation($instantiations)
     {
         $this->instantiations[] = $instantiations;
@@ -184,34 +188,34 @@ class PhpFile
 
     public function __toString()
     {
-        $str = '----------------------------------------' . PHP_EOL
-             . 'File: ' . $this->realPath . ' (ID:' . $this->getID() . ')' . PHP_EOL
-             . 'Class:' . $this->className . PHP_EOL;
+        $str = [];
 
-        if ($this->getCurrentNamespaces()) {
-            $str .= 'Namespace:' . $this->currentNamespaces[0] . PHP_EOL;
-        } else {
-            $str .= 'Namespace: not found' . PHP_EOL;
+        $str[] = '----------------------------------------';
+        $str[] = 'File: ' . $this->realPath . ' (ID:' . $this->getID() . ')';
+        $str[] = 'Autoloader:' . $this->getAutoloadPath();
+        $str[] = 'Class:' . $this->className;
+        $str[] = 'Namespace: ';
+        foreach ($this->getCurrentNamespaces() as $currentNamespace) {
+            $str[] = "\t" . $currentNamespace;
         }
 
-        $str .= 'Autoloader:' . $this->getAutoloadPath(). PHP_EOL
-             . 'Uses:' . PHP_EOL;
+        $str[] = 'Uses:';
 
         foreach ($this->getUsesNamespaces() as $namespace) {
-            $str .= "\t" . $namespace->name . ' => ' . $namespace->alias . PHP_EOL;
+            $str[] = "\t" . $namespace->name . ' => ' . $namespace->alias;
         }
 
-        $str .= 'Instantiations:' . PHP_EOL;
+        $str[] = 'Instantiations:';
         foreach ($this->getInstantiations() as $instantiation) {
-            $str .= "\t" . $instantiation->class . PHP_EOL;
+            $str[] = "\t" . $instantiation->name . ' (' . $instantiation->index . ')';
         }
 
-        $str .= 'StaticCalls:' . PHP_EOL;
+        $str[] = 'StaticCalls:';
         foreach ($this->getStaticCalls() as $staticCalls) {
-            $str .= "\t" . $staticCalls->class . PHP_EOL;
+            $str[] = "\t" . $staticCalls->class;
         }
 
-        return $str;
+        return implode(PHP_EOL, $str);
     }
 
 

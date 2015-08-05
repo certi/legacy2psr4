@@ -43,7 +43,11 @@ class Namespaces
 
     public function __toString()
     {
-        return 'Name:' . $this->name ? $this->name : 'undefined' . ', line:' . $this->line;
+        if ($this->name) {
+
+            return $this->name . ' (' . $this->index . ')';
+        }
+        return 'undefined';
     }
 
 }

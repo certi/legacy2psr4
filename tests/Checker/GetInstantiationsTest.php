@@ -17,7 +17,7 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => '$a = new Booking();' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking',
+                        'name' => 'Booking',
                     ]
                 ]
             ],
@@ -25,7 +25,7 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => '$a = new Booking(23123);' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking',
+                        'name' => 'Booking',
                     ],
                 ]
             ],
@@ -34,7 +34,7 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => ' $a = new Booking(23123) ; ' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking',
+                        'name' => 'Booking',
                     ],
                 ]
             ],
@@ -43,7 +43,7 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => '$a = new Booking($adsasd);' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking',
+                        'name' => 'Booking',
                     ],
                 ]
             ],
@@ -52,7 +52,7 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => '$x =func($b, new Booking(), $a);' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking',
+                        'name' => 'Booking',
                     ],
                 ]
             ],
@@ -61,7 +61,22 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'content'  => '$x =func($b, new Booking_Unterscore_1(), $a);' . PHP_EOL ,
                 'expected' => [
                     [
-                        'class' => 'Booking_Unterscore_1',
+                        'name' => 'Booking_Unterscore_1',
+                    ],
+                ]
+            ],
+
+
+            [ #6
+                'content'  => PHP_EOL . '$x =func(new Booking(), new Logger, $a);' . PHP_EOL ,
+                'expected' => [
+                    [
+                        'name'  => 'Booking',
+                        'index' => 1,
+                    ],
+                    [
+                        'name'  => 'Logger',
+                        'index' => 1,
                     ],
                 ]
             ],
@@ -101,7 +116,10 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(count($expected), count($instantations));
         for ($i = 0; $i < count($expected); $i++) {
-            $this->assertEquals($expected[$i]['class'], $instantations[$i]->class);
+            $this->assertEquals($expected[$i]['name'], $instantations[$i]->name);
+            if (isset($expected[$i]['index'])) {
+                $this->assertEquals($expected[$i]['index'], $instantations[$i]->index);
+            }
         }
 
     }
