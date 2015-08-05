@@ -71,6 +71,13 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
                 'content'  => 'self::doSomething();' . PHP_EOL ,
                 'expected' => [],
             ],
+
+            [ #8 negativ: ignore
+                'content'  => '$regexp = \'/(=|\()\s([^[\(|\s|self|Object]*]*)::/im\'',
+                'expected' => [],
+            ],
+
+
         ];
 
         return $caseList;
