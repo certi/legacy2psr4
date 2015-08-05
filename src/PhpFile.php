@@ -63,7 +63,7 @@ class PhpFile
         $checkList   = [];
         $checkList[] = new Checker\GetClassName($this);
         $checkList[] = new Checker\GetNamespace($this);
-        $checkList[] = new Checker\GetUsesNamespaces($this);
+        $checkList[] = new Checker\GetUsedNamespaces($this);
         $checkList[] = new Checker\GetInstantiations($this);
         $checkList[] = new Checker\GetStaticCalls($this);
 

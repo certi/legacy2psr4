@@ -44,12 +44,30 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
 
-            [ #4
+            [ #4 numbers
+                'content'  => 'Booking123::$aaa++;' . PHP_EOL ,
+                'expected' => [
+                    [
+                        'class' => 'Booking123',
+                    ],
+                ],
+            ],
+
+            [ #5 underscore + numbers
+                'content'  => 'Booking_123_newSomething::$aaa++;' . PHP_EOL ,
+                'expected' => [
+                    [
+                        'class' => 'Booking_123_newSomething',
+                    ],
+                ],
+            ],
+
+            [ #6 negativ: ignore parent
                 'content'  => 'parent::doSomething();' . PHP_EOL ,
                 'expected' => [],
             ],
 
-            [ #5
+            [ #7 negativ: ignore self
                 'content'  => 'self::doSomething();' . PHP_EOL ,
                 'expected' => [],
             ],

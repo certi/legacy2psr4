@@ -71,7 +71,10 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
                 'expected' => []
             ],
 
-
+            [ # negativ
+                'content'  => 'injects new content into something' . PHP_EOL ,
+                'expected' => []
+            ],
         ];
 
         return $caseList;

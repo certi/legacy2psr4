@@ -2,7 +2,7 @@
 
 namespace Certi\LegacypsrFour\Checker;
 
-class GetUsesNamespaces extends CheckerAbstract
+class GetUsedNamespaces extends CheckerAbstract
 {
     public function execute()
     {

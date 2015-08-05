@@ -16,22 +16,21 @@ class GetStaticCalls extends CheckerAbstract
         */
 
         #$regexp = '/(=|\()\s([^[\(|\s|self|parent]*]*)::/im';
-        $assign = '(=|\()';
-        $regexp = '/' . $assign . '?\s*(\S*)::/im';
+        $regexp = '/' . self::SPLITTER . '((\w*))::/im';
         if (preg_match_all($regexp, $this->getContent(), $matches)) {
 
             for ($i = 0; $i < count($matches[0]); $i++) {
 
                 if (
-                    empty($matches[2][$i])
-                    || in_array($matches[2][$i], array('parent', 'self'))
-                    || strpos($matches[2][$i], '$') !== false
+                    empty($matches[3][$i])
+                    || in_array($matches[3][$i], array('parent', 'self'))
+                    || strpos($matches[3][$i], '$') !== false
                 ) {
                     continue;
                 }
 
                 $calls        = new \stdClass();
-                $calls->class = $matches[2][$i];
+                $calls->class = $matches[3][$i];
                 $this->file->addStaticCall($calls);
 
             }

@@ -3,10 +3,10 @@
 namespace Certi\LegacypsrFour\Tests\Checker;
 
 use Certi\LegacypsrFour\Tests;
-use Certi\LegacypsrFour\Checker\GetUsesNamespaces;
+use Certi\LegacypsrFour\Checker\GetUsedNamespaces;
 
 
-class GetUsesNamespacesTest extends \PHPUnit_Framework_TestCase
+class GetUsedNamespacesTest extends \PHPUnit_Framework_TestCase
 {
 
     public function dataProviderForExecuteTest()
@@ -75,7 +75,7 @@ class GetUsesNamespacesTest extends \PHPUnit_Framework_TestCase
 
         $file = Tests\Helper::getFileMock(['getContents' => $content]);
 
-        $checker = new GetUsesNamespaces($file);
+        $checker = new GetUsedNamespaces($file);
         $checker->execute();
 
         $usesNamespaces = $file->getUsesNamespaces();
