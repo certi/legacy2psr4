@@ -2,11 +2,11 @@
 
 namespace Certi\LegacypsrFour\Item;
 
-class Instantation
+abstract class ItemAbstract
 {
 
     protected $name;
-a
+
     protected $index;
 
     /**
@@ -39,6 +39,14 @@ a
     public function setIndex($line)
     {
         $this->index = $line;
+    }
+
+    public function get($param)
+    {   
+        if (!isset($this->$param)) {
+            throw new \InvalidArgumentException('Object of ' . __CLASS__ . ' has no property:' . $param);
+        }
+        return $this->$param;
     }
 
     public function __toString()

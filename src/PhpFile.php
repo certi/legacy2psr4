@@ -2,6 +2,7 @@
 
 namespace Certi\LegacypsrFour;
 
+use Certi\LegacypsrFour\Item\Instantation;
 use Certi\LegacypsrFour\Item\Namespaces;
 use Symfony\Component\Finder;
 
@@ -29,6 +30,9 @@ class PhpFile
 
     protected $usesNamespaces = [];
 
+    /**
+     * @var Instantation[]
+     */
     protected $instantiations = [];
 
     protected $staticCalls = [];
@@ -146,11 +150,7 @@ class PhpFile
         return $this->usesNamespaces;
     }
 
-    /**
-     * @todo type hinting.
-     * @param $instantiations
-     */
-    public function addInstantiation($instantiations)
+    public function addInstantiation(Instantation $instantiations)
     {
         $this->instantiations[] = $instantiations;
     }
@@ -207,7 +207,7 @@ class PhpFile
 
         $str[] = 'Instantiations:';
         foreach ($this->getInstantiations() as $instantiation) {
-            $str[] = "\t" . $instantiation->name . ' (' . $instantiation->index . ')';
+            $str[] = "\t" . $instantiation;
         }
 
         $str[] = 'StaticCalls:';

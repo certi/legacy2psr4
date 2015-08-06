@@ -2,6 +2,8 @@
 
 namespace Certi\LegacypsrFour\Checker;
 
+use Certi\LegacypsrFour\Item\Instantation;
+
 class GetInstantiations extends CheckerAbstract
 {
     public function execute()
@@ -17,9 +19,9 @@ class GetInstantiations extends CheckerAbstract
                     if (empty($matches[3][$i])) {
                         continue;
                     }
-                    $instantiation        = new \stdClass();
-                    $instantiation->name  = $matches[3][$i];
-                    $instantiation->index = $index;
+                    $instantiation = new Instantation();
+                    $instantiation->setName($matches[3][$i]);
+                    $instantiation->setIndex($index);
 
                     $this->file->addInstantiation($instantiation);
 

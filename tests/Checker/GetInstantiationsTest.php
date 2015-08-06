@@ -115,11 +115,13 @@ class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
         $instantations = $file->getInstantiations();
 
         $this->assertEquals(count($expected), count($instantations));
+
         for ($i = 0; $i < count($expected); $i++) {
-            $this->assertEquals($expected[$i]['name'], $instantations[$i]->name);
-            if (isset($expected[$i]['index'])) {
-                $this->assertEquals($expected[$i]['index'], $instantations[$i]->index);
+
+            foreach ($expected[$i] as $key => $value) {
+                $this->assertEquals($value, $instantations[$i]->get($key));
             }
+
         }
 
     }
