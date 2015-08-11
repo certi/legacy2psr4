@@ -8,7 +8,14 @@ class PhpFileRegistry
 
     const PROP_OBJECT = 'object';
 
+    /**
+     * @var PhpFile[]
+     */
     private $fileRegistry      = [];
+
+    /**
+     * @var string[]
+     */
     private $classRegistry     = [];
     // private $interfaceRegistry = [];
 
@@ -61,7 +68,6 @@ class PhpFileRegistry
      */
     public function countClassRegistry()
     {
-
         return count($this->classRegistry);
     }
 
@@ -101,13 +107,14 @@ class PhpFileRegistry
      */
     public function __toString()
     {
-        $str = '--------------------' .PHP_EOL
-             . 'Files in Registry: ' . $this->countFileRegistry() . PHP_EOL
-        ;
+        $str = [];
 
-        $str .= 'Classes in Registry: ' . $this->countClassRegistry() . PHP_EOL;
+        $str[] = '--------------------';
+        $str[] = 'Files in Registry: ' . $this->countFileRegistry();
+        $str[] = 'Classes in Registry: ' . $this->countClassRegistry();
         foreach ($this->classRegistry as $class => $id) {
-            $str .= str_pad($id, 12, ' ') . $class . PHP_EOL;
+
+            $str[] = str_pad($id, 12, ' ') . $class .  ', path:' . $this->getPhpFileById($id)->getTargetNamespace();
         }
 
         /*
@@ -117,7 +124,7 @@ class PhpFileRegistry
         }
         */
 
-        return $str;
+        return implode(PHP_EOL, $str);
     }
 
 }

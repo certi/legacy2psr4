@@ -43,7 +43,6 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
 
     public function dataProviderForReplaceTest()
     {
-
         $caseList = [];
 
         $caseList[] = [
@@ -72,6 +71,84 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
         $file = Tests\Helper::getFileMock(['getContents' => $content]);
         $res  = $file->replace($newContent, $position);
         $this->assertEquals($expected, $res);
+    }
+
+    public function dataProviderForGetAutoloadPathTest()
+    {
+        $caseList = [];
+
+        $caseList[] = [
+            'path'     => '/home/i/Fixer/UsedNamespaceFixer.php',
+            'base'     => '/home/i/',
+            'expected' => 'Fixer/UsedNamespaceFixer.php',
+        ];
+
+        return $caseList;
+    }
+
+    /**
+     * @tests
+     *
+     * @dataProvider dataProviderForGetAutoloadPathTest
+     */
+    public function getAutoloadPathTest($path, $base, $expected)
+    {
+        $mockParams = [
+            'getRealPath' => $path,
+            'getBasePath' => $base,
+        ];
+
+        $file = Tests\Helper::getFileMock([], $mockParams);
+        $this->assertEquals($expected, $file->getAutoloadPath());
+    }
+
+    public function dataProviderForGetTargetNamespaceTest()
+    {
+        $caseList = [];
+
+        $caseList[] = [
+            'path'     => '/home/i/Fixer/UsedNamespaceFixer.php',
+            'base'     => '/home/i/',
+            'expected' => '\Fixer\UsedNamespaceFixer',
+        ];
+
+        $caseList[] = [
+            'path'     => '/home/i//Fixer/UsedNamespaceFixer.class..php',
+            'base'     => '/home/i/',
+            'expected' => '\Fixer\UsedNamespaceFixer',
+        ];
+
+        $caseList[] = [
+            'path'     => '/home/i//Fixer/UsedNamespace_1Fixer.class.php',
+            'base'     => '/home/i/',
+            'expected' => '\Fixer\UsedNamespace_1Fixer',
+        ];
+
+        return $caseList;
+    }
+
+    /**
+     * @tests
+     *
+     * @dataProvider dataProviderForGetTargetNamespaceTest
+     *
+     * @depends getAutoloadPathTest
+     */
+    public function getTargetNamespaceTest($path, $base, $expected)
+    {
+
+        $fileParams = [
+            'getRealPath' => $path,
+            'getBasePath' => $base,
+        ];
+
+        $file = Tests\Helper::getFileMock([], $fileParams);#$mockParams
+#        $this->assertEquals($expected, $file->getAutoloadPath());
+
+
+
+#        $file = Tests\Helper::getFileMock($fileParams);
+        $this->assertEquals($expected, $file->getTargetNamespace());
     }
 
 }

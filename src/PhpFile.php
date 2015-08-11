@@ -119,7 +119,16 @@ class PhpFile
 
     public function getTargetNamespace()
     {
-        return preg_replace('#/#', '\\', $this->getAutoloadPath());
+        // avoid double "/"
+        $path = preg_replace('#/+#', '/', $this->getAutoloadPath());
+
+        // delete file-extension
+        $path = preg_replace('/(\..*)$/i', '', $path);
+
+        // convert "/" in "\"
+        $path = preg_replace('#/#', '\\', $path);
+
+        return $path;
     }
 
     /**
@@ -175,6 +184,11 @@ class PhpFile
         return $this->realPath;
     }
 
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
     /**
      * /home/abc/projects/legacy/something/dirty.php => something/dirty.php
      *
@@ -183,7 +197,9 @@ class PhpFile
      */
     public function getAutoloadPath()
     {
-        return substr($this->realPath, strlen($this->basePath));
+
+        $res = substr($this->getRealPath(), strlen($this->getBasePath()));
+        return $res;
     }
 
     public function __toString()
@@ -221,6 +237,8 @@ class PhpFile
 
     /**
      * Injects new content
+     *
+     * @todo: very important: increase the indexes of instantations etc.
      *
      * @param string  $content
      * @param integer $position

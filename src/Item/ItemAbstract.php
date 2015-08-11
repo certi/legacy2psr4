@@ -4,7 +4,6 @@ namespace Certi\LegacypsrFour\Item;
 
 abstract class ItemAbstract
 {
-
     protected $name;
 
     protected $index;
@@ -41,12 +40,19 @@ abstract class ItemAbstract
         $this->index = $line;
     }
 
-    public function get($param)
-    {   
-        if (!isset($this->$param)) {
-            throw new \InvalidArgumentException('Object of ' . __CLASS__ . ' has no property:' . $param);
+    /**
+     * Gets property by name
+     *
+     * @param string $property
+     *
+     * @return mixed
+     */
+    public function get($property)
+    {
+        if (!isset($this->$property)) {
+            throw new \InvalidArgumentException('Object of ' . __CLASS__ . ' has no property:' . $property);
         }
-        return $this->$param;
+        return $this->$property;
     }
 
     public function __toString()
