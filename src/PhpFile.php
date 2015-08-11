@@ -119,8 +119,8 @@ class PhpFile
 
     public function getTargetNamespace()
     {
-        // avoid double "/"
-        $path = preg_replace('#/+#', '/', $this->getAutoloadPath());
+        // avoid double "/" ?? not really needed because of realpath
+        $path = preg_replace('/\/{2,}/', '/', $this->getAutoloadPath());
 
         // delete file-extension
         $path = preg_replace('/(\..*)$/i', '', $path);

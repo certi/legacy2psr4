@@ -105,23 +105,21 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
     public function dataProviderForGetTargetNamespaceTest()
     {
         $caseList = [];
-
         $caseList[] = [
             'path'     => '/home/i/Fixer/UsedNamespaceFixer.php',
             'base'     => '/home/i/',
-            'expected' => '\Fixer\UsedNamespaceFixer',
+            'expected' => 'Fixer\UsedNamespaceFixer',
         ];
 
         $caseList[] = [
-            'path'     => '/home/i//Fixer/UsedNamespaceFixer.class..php',
+            'path'     => '/home/i/Fixer/UsedNamespaceFixer.class..php',
             'base'     => '/home/i/',
-            'expected' => '\Fixer\UsedNamespaceFixer',
+            'expected' => 'Fixer\UsedNamespaceFixer',
         ];
-
         $caseList[] = [
-            'path'     => '/home/i//Fixer/UsedNamespace_1Fixer.class.php',
+            'path'     => '/home/i/Fixer/UsedNamespace_1Fixer.class.php',
             'base'     => '/home/i/',
-            'expected' => '\Fixer\UsedNamespace_1Fixer',
+            'expected' => 'Fixer\UsedNamespace_1Fixer',
         ];
 
         return $caseList;
@@ -142,12 +140,7 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
             'getBasePath' => $base,
         ];
 
-        $file = Tests\Helper::getFileMock([], $fileParams);#$mockParams
-#        $this->assertEquals($expected, $file->getAutoloadPath());
-
-
-
-#        $file = Tests\Helper::getFileMock($fileParams);
+        $file = Tests\Helper::getFileMock([], $fileParams);
         $this->assertEquals($expected, $file->getTargetNamespace());
     }
 

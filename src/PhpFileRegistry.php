@@ -3,6 +3,8 @@
 namespace Certi\LegacypsrFour;
 
 
+use Certi\LegacypsrFour\Item\Instantation;
+
 class PhpFileRegistry
 {
 
@@ -127,4 +129,37 @@ class PhpFileRegistry
         return implode(PHP_EOL, $str);
     }
 
+    /**
+     * @return bool
+     */
+    public function isGlobalScopeInstantation(Instantation $instantation)
+    {
+        $sep = '\\';
+
+        $res  = $instantation->getName() . ' => ';
+        $res .= strpos($instantation->getName(), '\\', 0) . PHP_EOL;
+#        echo $res;
+
+        if (strpos($instantation->getName(), $sep) === 0) {
+            return true;
+        }
+
+        return false;
+
+        /* error!
+        $sep = '\\';
+        if (preg_match('#^' . $sep . '#', $instantation->getName())) {
+            return true;
+        }*/
+    }
+
+    /**
+     * @todo implement me!
+     *
+     * @return bool
+     */
+    public function getUseNamespaceByInstantation()
+    {
+        return false;
+    }
 }

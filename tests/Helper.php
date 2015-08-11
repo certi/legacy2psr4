@@ -2,8 +2,8 @@
 
 namespace Certi\LegacypsrFour\Tests;
 
-#use Certi\LegacypsrFour\PhpFile;
-#use Symfony\Component\Finder\SplFileInfo;
+use Certi\LegacypsrFour\PhpFile;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Helper extends \PHPUnit_Framework_TestCase
 {

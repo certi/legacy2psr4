@@ -2,6 +2,7 @@
 
 namespace Certi\LegacypsrFour\Fixer;
 
+use Certi\LegacypsrFour\Item\Instantation;
 use Certi\LegacypsrFour\PhpFile;
 use Certi\LegacypsrFour\PhpFileRegistry;
 
@@ -20,6 +21,9 @@ class UsedNamespaceFixer extends AbstractFixer
 
         $instantationList = $this->file->getInstantiations();
 
+        /**
+         * @var Instantation $instantation
+         */
         foreach ($instantationList  as $instantation) {
 
             if (false == $this->registry->isGlobalScopeInstantation($instantation)) {
