@@ -26,6 +26,7 @@ class PhpFileFixer
         // @todo: backup?
         $fixerList = [];
         $fixerList[] = new Fixer\NamespaceFixer($this->file, $this->registry);
+        $fixerList[] = new Fixer\UsedNamespaceFixer($this->file, $this->registry);
 
         foreach ($fixerList as $fixer) {
             $fixer->run();

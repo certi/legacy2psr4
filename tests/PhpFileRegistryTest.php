@@ -117,7 +117,7 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
      */
     public function isGlobalScopeInstantationTest($name, $expected)
     {
-        $registry = new PhpFileRegistry();
+        $registry     = new PhpFileRegistry();
         $instantation = new Instantation();
         $instantation->setName($name);
 

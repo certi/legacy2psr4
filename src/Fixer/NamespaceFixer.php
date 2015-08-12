@@ -15,24 +15,10 @@ class NamespaceFixer extends AbstractFixer
     {
         if (!$this->file->getCurrentNamespaces()) {
             $this->addNamespace();
-        } elseif (false === $this->isNamespaceCorrect()) {
+        } elseif (false === $this->file->isNamespaceCorrect()) {
             $this->replaceNamespace();
         }
 
-    }
-
-    /**
-     * Is the current Namespace correct?
-     *
-     * @todo: move it into PhpFile
-     *
-     * @return bool
-     */
-    protected function isNamespaceCorrect() {
-        if (0 == count($this->file->getCurrentNamespaces())) {
-            return false;
-        }
-        return $this->file->getCurrentNamespaces()[0]->getName() === $this->file->getTargetNamespace();
     }
 
     /**

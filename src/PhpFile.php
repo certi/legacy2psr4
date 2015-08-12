@@ -8,6 +8,7 @@ use Symfony\Component\Finder;
 
 class PhpFile
 {
+    const NS_SEPARATOR = '\\';
 
     /**
      * @var Finder\SplFileInfo
@@ -126,7 +127,7 @@ class PhpFile
         $path = preg_replace('/(\..*)$/i', '', $path);
 
         // convert "/" in "\"
-        $path = preg_replace('#/#', '\\', $path);
+        $path = preg_replace('#/#', self::NS_SEPARATOR, $path);
 
         return $path;
     }
@@ -271,6 +272,21 @@ class PhpFile
         $array  = preg_split("/" . PHP_EOL . "/", $this->getOriginalContent());
         $array[$position] = $newContent;
         return implode(PHP_EOL, $array);
+    }
+
+
+    /**
+     * Is the current Namespace correct?
+     *
+     * @todo: move it into PhpFile
+     *
+     * @return bool
+     */
+    public function isNamespaceCorrect() {
+        if (0 == count($this->getCurrentNamespaces())) {
+            return false;
+        }
+        return $this->getCurrentNamespaces()[0]->getName() === $this->getTargetNamespace();
     }
 
 }

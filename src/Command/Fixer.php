@@ -45,9 +45,9 @@ class Fixer extends Command
         }
 
         // normalize ns
-        $this->ns = preg_replace('#/#', '\\', $this->ns);
-        if (!preg_match('#\\$#', $this->ns)) {
-            $this->ns . '\\';
+        $this->ns = preg_replace('#/#', PhpFile::NS_SEPARATOR, $this->ns);
+        if (!preg_match('#' . PhpFile::NS_SEPARATOR . '$#', $this->ns)) {
+            $this->ns . PhpFile::NS_SEPARATOR;
         }
 
         $fileList = $this->getFiles($this->path);
@@ -75,7 +75,7 @@ class Fixer extends Command
 
             $fixer = new PhpFileFixer($fileID, $phpFileRegistry);
             $fixer->run();
-            $this->output->writeln('FIX file: ' . $fileID);
+            $this->output->writeln('FIX file: ' . $fileID . '  (' . $phpFileRegistry->getPhpFileById($fileID)->getAutoloadPath() . ')');
         }
 
     }
@@ -94,85 +94,3 @@ class Fixer extends Command
         return $finder;
     }
 }
-
-__halt_compiler();
-
-/*
-protected function handleFile(Finder\SplFileInfo $file)
-{
-
-    $base     = realpath($this->path);
-    $realpath = $file->getRealPath();
-    $autoload_path = $this->getAutoloadPath($base, $realpath);
-
-    $expected_ns = $this->convertPathToNs($autoload_path);
-
-    $content = $file->getContents();
-
-
-    $checkList   = [];
-    $checkList[] = new Checker\GetClassName($this);
-    $checkList[] = new Checker\HasNamespace($this);
-    $checkList[] = new Checker\HasUseNamespace($this);
-
-    // pass namespace to path?
-    // pass class to filename?
-    // has multiple namespaces?
-
-    /**
-     * @var $check CheckerInterface
-     * /
-    foreach ($checkList as $check) {
-        $check->execute($content);
-    }
-
-    #// uses anyher classes/interfaces/traits
-    #$this->checkRelatedClasses($content);
-    #$this->output->writeln($autoload_path . '=>' . $expected_ns);
-}
-
-
-protected function checkRelatedClasses($content)
-{
-    $lex   = [];
-    $lex[] = new Lexer\Instantiate($this);
-    $lex[] = new Lexer\StaticCall($this);
-    $lex[] = new Lexer\TypeHinting($this);
-
-    /**
-     * @var $lexItem LexerInterface
-     * /
-    foreach ($lex as $lexItem) {
-        $lexItem->execute($content);
-    }
-
-}
-
-protected function getAutoloadPath($base, $realpath)
-{
-    return substr($realpath, strlen($base));
-}
-
-/**
- * @todo: Windows? tfuj
- *
- * @param $path
- * /
-protected function convertPathToNs($path)
-{
-    $first = '';
-    $file  = '';
-    if (preg_match('#(.*)\/([^\/]*)#', $path, $matches)) {
-        $first = $matches[1];
-        $file  = $matches[2];
-    } elseif (preg_match('#/(.*)#', $path, $matches)) {
-        $file  = $matches[1];
-    } else {
-        throw new Exception('Uknown format: ' . $path);
-    }
-
-    $ns  = $this->ns . preg_replace('#/#', '\\', $first);
-
-    return $ns;
-}
-*/

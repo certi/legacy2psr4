@@ -24,7 +24,7 @@ class PhpFileRegistry
     public function addFile(PhpFile $file)
     {
         $this->addIntoFileRegistry($file);
-        $this->index($file);
+        $this->addIntoClassRegistry($file);
     }
 
     /**
@@ -82,15 +82,34 @@ class PhpFileRegistry
     }
 
 
-    protected function index(PhpFile $file)
+    protected function addIntoClassRegistry(PhpFile $file)
     {
         $class = $file->getClassName();
-        if (!empty($class)) {
-            if (isset($this->classRegistry[$file->getClassName()])) {
-                throw new \Exception(sprintf('Class %s was already added', $file->getClassName()) . ', ' . $file->getRealPath());
-            }
-            $this->classRegistry[$file->getClassName()] = $file->getID();
+        $ns    = $file->getCurrentNamespaces();
+
+        #===============
+
+        // create $class + $ns
+        if ($file->isNamespaceCorrect()) {
+            $fullClass = $ns . PhpFile::NS_SEPARATOR . $class;
         }
+
+
+        #===============
+        if (empty($class)) {
+            return;
+        }
+
+
+        if (isset($this->classRegistry[$file->getClassName()])) {
+
+            $msg  = sprintf('Class %s was already added', $file->getClassName()) . ', ' . $file->getRealPath();
+            $prev = $this->classRegistry[$file->getClassName()];
+            throw new \Exception();
+
+        }
+        $this->classRegistry[$file->getClassName()] = $file->getID();
+
         /*
         $interface = $file->getInterfaceName();
         if (!empty($interface)) {
@@ -115,7 +134,6 @@ class PhpFileRegistry
         $str[] = 'Files in Registry: ' . $this->countFileRegistry();
         $str[] = 'Classes in Registry: ' . $this->countClassRegistry();
         foreach ($this->classRegistry as $class => $id) {
-
             $str[] = str_pad($id, 12, ' ') . $class .  ', path:' . $this->getPhpFileById($id)->getTargetNamespace();
         }
 
@@ -129,26 +147,21 @@ class PhpFileRegistry
         return implode(PHP_EOL, $str);
     }
 
+
+
     /**
+     * Detects global namespaces (for Example \Exception)
      * @return bool
      */
     public function isGlobalScopeInstantation(Instantation $instantation)
     {
-        $sep = '\\';
-
-        $res  = $instantation->getName() . ' => ';
-        $res .= strpos($instantation->getName(), '\\', 0) . PHP_EOL;
-#        echo $res;
-
-        if (strpos($instantation->getName(), $sep) === 0) {
+        if (strpos($instantation->getName(), PhpFile::NS_SEPARATOR) === 0) {
             return true;
         }
-
         return false;
 
         /* error!
-        $sep = '\\';
-        if (preg_match('#^' . $sep . '#', $instantation->getName())) {
+        if (preg_match('#^' . PhpFile::SEPARATOR . '#', $instantation->getName())) {
             return true;
         }*/
     }
@@ -158,8 +171,22 @@ class PhpFileRegistry
      *
      * @return bool
      */
-    public function getUseNamespaceByInstantation()
+    public function getUseNamespaceByInstantation(Instantation $instantation)
     {
+
+        if (isset($this->classRegistry[$instantation->getName()])) {
+            echo "\t" . $instantation->getName() . ' => ' . $this->classRegistry[$instantation->getName()] . PHP_EOL;
+        } else {
+            echo "\t" . $instantation->getName() . ' => not found' . PHP_EOL;
+            // not found: use in global context
+            if (strpos($instantation->getName(), PhpFile::NS_SEPARATOR) !== 0) {
+                return PhpFile::NS_SEPARATOR . $instantation->getName();
+            }
+
+        }
+
+
+
         return false;
     }
 }
