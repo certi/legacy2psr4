@@ -3,6 +3,7 @@
 namespace Certi\LegacypsrFour;
 
 
+use Certi\LegacypsrFour\Item\Classes;
 use Certi\LegacypsrFour\Item\Instantation;
 
 class PhpFileRegistry
@@ -16,7 +17,7 @@ class PhpFileRegistry
     private $fileRegistry      = [];
 
     /**
-     * @var string[]
+     * @var Classes
      */
     private $classRegistry     = [];
     // private $interfaceRegistry = [];
@@ -67,6 +68,8 @@ class PhpFileRegistry
     /**
      * How many files in registry
      * @return int
+     *
+     * @todo: rechne die gleichnamige Klassen drauf
      */
     public function countClassRegistry()
     {
@@ -84,40 +87,82 @@ class PhpFileRegistry
 
     protected function addIntoClassRegistry(PhpFile $file)
     {
-        $class = $file->getClassName();
-        $ns    = $file->getCurrentNamespaces();
 
-        #===============
-
-        // create $class + $ns
-        if ($file->isNamespaceCorrect()) {
-            $fullClass = $ns . PhpFile::NS_SEPARATOR . $class;
-        }
-
-
-        #===============
-        if (empty($class)) {
+        $classItem = $this->getClassByFile($file);
+        if (empty($classItem)) {
+            // this file containsts none class - probably old procedural code
             return;
         }
 
+        if ($this->isClassDuplicated($classItem)) {
 
-        if (isset($this->classRegistry[$file->getClassName()])) {
+            // @todo create full msg
+            #$msg  = sprintf('Class %s was already added', $file->getClassName()) . ', ' . $file->getRealPath();
+            #$prev = $this->classRegistry[$file->getClassName()];
 
-            $msg  = sprintf('Class %s was already added', $file->getClassName()) . ', ' . $file->getRealPath();
-            $prev = $this->classRegistry[$file->getClassName()];
-            throw new \Exception();
+            $msg = 'abc';
+            throw new \Exception($msg);
+        }
+
+        $this->insertIntoClassRegistry($classItem);
+
+    }
+
+    protected function getClassByFile(PhpFile $file)
+    {
+        $class = $file->getClassName();
+        if (empty($class)) {
+            return false;
+        }
+        $ns = $file->getCorrectNamespaceForClass();
+
+        $classItem = new Item\Classes();
+        $classItem->setName($class);
+        $classItem->setNamespace($ns);
+        $classItem->setFileID($file->getID());
+
+        return $classItem;
+    }
+
+
+    /**
+     * @param $classItem
+     *
+     * @todo: rename it! see this->addIntoClassRegistry
+     */
+    protected function insertIntoClassRegistry(Classes $classItem)
+    {
+        if (!isset($this->classRegistry[$classItem->getName()])) {
+            $this->classRegistry[$classItem->getName()] = [];
+        }
+
+        $this->classRegistry[$classItem->getName()][] = $classItem;
+
+    }
+
+    /**
+     * Its possible to have to classes with the same name
+     * but in different namespaces. Both must be check
+     *
+     * @param Classes $class
+     */
+    protected function isClassDuplicated(Item\Classes $class)
+    {
+
+        if (isset($this->classRegistry[$class->getName()])) {
+
+            /**
+             * @var Item\Classes $foundClass
+             */
+            foreach ($this->classRegistry[$class->getName()] as $foundClass) {
+                if ($foundClass->getNamespace() === $class->getNamespace()) {
+                    return true;
+                }
+            }
+
 
         }
-        $this->classRegistry[$file->getClassName()] = $file->getID();
-
-        /*
-        $interface = $file->getInterfaceName();
-        if (!empty($interface)) {
-            if (isset($this->interfaceRegistry[$file->getInterfaceName()])) {
-                throw new \Exception(sprintf('Class %s was already added', $file->getInterfaceName()) . ', ' . $file->getRealPath());
-            }
-            $this->interfaceRegistry[$file->getInterfaceName()] = $file->getID();
-        }*/
+        return false;
 
     }
 
@@ -133,8 +178,24 @@ class PhpFileRegistry
         $str[] = '--------------------';
         $str[] = 'Files in Registry: ' . $this->countFileRegistry();
         $str[] = 'Classes in Registry: ' . $this->countClassRegistry();
-        foreach ($this->classRegistry as $class => $id) {
-            $str[] = str_pad($id, 12, ' ') . $class .  ', path:' . $this->getPhpFileById($id)->getTargetNamespace();
+        foreach ($this->classRegistry as $className => $classList) {
+            try {
+
+                foreach ($classList as $class) {
+
+                    $fileID = $class->getFileID();
+
+                    $file = $this->getPhpFileById($fileID);
+
+                    $str[] = str_pad($class->getFileID(), 12, ' ');
+                    $msg  = $class->getName() ;
+                    $msg .= ', path:' . $file->getTargetNamespace();
+                    $str[] = $msg;
+                }
+            } catch (Exception $e) {
+                echo $e->getTraceAsString();
+            }
+
         }
 
         /*
@@ -175,17 +236,17 @@ class PhpFileRegistry
     {
 
         if (isset($this->classRegistry[$instantation->getName()])) {
-            echo "\t" . $instantation->getName() . ' => ' . $this->classRegistry[$instantation->getName()] . PHP_EOL;
+            echo "\t" . $instantation->getName() . ': ' . PHP_EOL;
+            foreach ($this->classRegistry[$instantation->getName()] as $class) {
+                echo "\t\t" . $class  . PHP_EOL;
+            }
         } else {
             echo "\t" . $instantation->getName() . ' => not found' . PHP_EOL;
             // not found: use in global context
             if (strpos($instantation->getName(), PhpFile::NS_SEPARATOR) !== 0) {
                 return PhpFile::NS_SEPARATOR . $instantation->getName();
             }
-
         }
-
-
 
         return false;
     }

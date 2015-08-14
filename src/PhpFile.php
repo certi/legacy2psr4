@@ -289,4 +289,15 @@ class PhpFile
         return $this->getCurrentNamespaces()[0]->getName() === $this->getTargetNamespace();
     }
 
+    public function getCorrectNamespaceForClass()
+    {
+        // get correct namespace
+        if ($this->isNamespaceCorrect()) {
+            $ns = $this->getCurrentNamespaces()[0];
+        } else {
+            $ns = $this->getTargetNamespace();
+        }
+        return $ns;
+    }
+
 }

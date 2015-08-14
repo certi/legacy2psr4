@@ -2,6 +2,7 @@
 
 namespace Certi\LegacypsrFour\Tests;
 
+use Certi\LegacypsrFour\Item\Classes;
 use Certi\LegacypsrFour\Item\Instantation;
 use Certi\LegacypsrFour\PhpFileRegistry;
 use Certi\LegacypsrFour\Tests;
@@ -82,33 +83,63 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    /**
+     * @test
+     */
+    public function addIntoFileRegistryTestTheSameClassnameDiffNamespaces()
+    {
+        // @todo: fix it!
+        $this->markTestIncomplete('Error! fix it!');
+
+        $registry = new PhpFileRegistry();
+
+        $methods = [
+            'getID'                       => 'abc123',
+            'getClassName'                => 'Foo',
+            'getCorrectNamespaceForClass' => 'Legacy\\Code',
+        ];
+
+        $mock = Tests\Helper::getFileMock([], $methods);
+        $registry->addFile($mock);
+
+        $methods = [
+            'getID'                       => 'abc123',
+            'getClassName'                => 'Foo',
+            'getCorrectNamespaceForClass' => 'Cool\\Type',
+        ];
+
+
+        $mock = Tests\Helper::getFileMock([], $methods);
+        $registry->addFile($mock);
+
+    }
+
     public function dataProviderForIsGlobalScopeInstantationTest()
     {
         $caseList = [];
 
         $caseList[] = [
-            'name'     => 'SomeAwsomeClass',
+            'name' => 'SomeAwsomeClass',
             'expected' => false,
         ];
 
         $caseList[] = [
-            'name'     => 'One\\More\\Time',
+            'name' => 'One\\More\\Time',
             'expected' => false,
         ];
 
         $caseList[] = [
-            'name'     => '\\One\\More\\Time',
+            'name' => '\\One\\More\\Time',
             'expected' => true,
         ];
 
         $caseList[] = [
-            'name'     => '\\Exception',
+            'name' => '\\Exception',
             'expected' => true,
         ];
 
         return $caseList;
     }
-
 
     /**
      * @test
@@ -122,6 +153,121 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
         $instantation->setName($name);
 
         $this->assertEquals($expected, $registry->isGlobalScopeInstantation($instantation));
+    }
+
+
+    public function dataProviderForIsClassDuplicatedTest()
+    {
+        $caseList = [];
+
+        # 0 diff
+        $caseList[] = [
+            'list' => [
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Foo',
+                ],
+                [
+                    'name'      => 'AbcNew',
+                    'namespace' => 'Bar',
+                ],
+            ],
+            'expected' => [
+                false,
+                false,
+            ]
+        ];
+
+        # 1 classname the same, diff namespaces
+        $caseList[] = [
+            'list' => [
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Foo',
+                ],
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Bar',
+                ],
+            ],
+            'expected' => [
+                false,
+                false,
+            ]
+        ];
+
+        # 2
+        # namespaces the same, diff classes
+        $caseList[] = [
+            'list' => [
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Foo',
+                ],
+                [
+                    'name'      => 'Xyc',
+                    'namespace' => 'Foo',
+                ],
+            ],
+            'expected' => [
+                false,
+                false,
+            ]
+        ];
+
+        $caseList = [];
+        # 3
+        # classnames and namespaces the same
+        $caseList[] = [
+            'list' => [
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Foo',
+                ],
+                [
+                    'name'      => 'Abc',
+                    'namespace' => 'Foo',
+                ],
+            ],
+            'expected' => [
+                false,
+                true,
+            ]
+        ];
+
+        return $caseList;
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider dataProviderForIsClassDuplicatedTest
+     */
+    public function isClassDuplicatedTest($list, $expected)
+    {
+        $registry = new PhpFileRegistry();
+
+        $isClassDuplicated = new \ReflectionMethod('Certi\LegacypsrFour\PhpFileRegistry', 'isClassDuplicated');
+        $isClassDuplicated->setAccessible(true);
+
+        $insertIntoRegistry = new \ReflectionMethod('Certi\LegacypsrFour\PhpFileRegistry', 'insertIntoClassRegistry');
+        $insertIntoRegistry->setAccessible(true);
+
+        for ($i = 0; $i < count($list); ++$i) {
+
+            $item = $list[$i];
+            $itemClass = new Classes();
+            $itemClass->setName($item['name']);
+            $itemClass->setNamespace($item['namespace']);
+
+            $res = $isClassDuplicated->invoke($registry, $itemClass);
+
+            $this->assertEquals($expected[$i], $res);
+
+            $insertIntoRegistry->invoke($registry, $itemClass);
+        }
+
+
     }
 
 }
