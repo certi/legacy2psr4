@@ -7,8 +7,6 @@ use Certi\LegacypsrFour\Item\Instantation;
 use Certi\LegacypsrFour\PhpFileRegistry;
 use Certi\LegacypsrFour\Tests;
 
-
-
 class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -88,8 +86,6 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
      */
     public function addIntoFileRegistryTestTheSameClassnameDiffNamespaces()
     {
-        // @todo: fix it!
-        $this->markTestIncomplete('Error! fix it!');
 
         $registry = new PhpFileRegistry();
 
@@ -103,7 +99,7 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
         $registry->addFile($mock);
 
         $methods = [
-            'getID'                       => 'abc123',
+            'getID'                       => 'xyz123',
             'getClassName'                => 'Foo',
             'getCorrectNamespaceForClass' => 'Cool\\Type',
         ];
