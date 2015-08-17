@@ -43,6 +43,11 @@ class Classes extends ItemAbstract
      */
     public function setFileID($fileID)
     {
+        $this->fileID = $fileID;
+    }
+
+    public function __toString()
+    {
         return $this->getName() . ' (ns: ' . $this->getNamespace() . ')';
     }
 

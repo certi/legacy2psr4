@@ -167,48 +167,54 @@ class PhpFileRegistry
     }
 
     /**
-     * Temporary added to see the statistics
+     * Print infos about the registry
      *
      * @return string
      */
-    public function __toString()
+    public function getDump()
     {
         $str = [];
 
         $str[] = '--------------------';
         $str[] = 'Files in Registry: ' . $this->countFileRegistry();
         $str[] = 'Classes in Registry: ' . $this->countClassRegistry();
+
+        /**
+         * @var Classes[] $classList
+         */
         foreach ($this->classRegistry as $className => $classList) {
-            try {
 
-                foreach ($classList as $class) {
+            $txt = [];
+            $txt[] = str_pad($className, 20, ' ');
 
-                    $fileID = $class->getFileID();
+            /**
+             * @var Classes $class
+             */
+            foreach ($classList as $class) {
 
-                    $file = $this->getPhpFileById($fileID);
+                $fileID = $class->getFileID();
+                $file   = $this->getPhpFileById($fileID);
 
-                    $str[] = str_pad($class->getFileID(), 12, ' ');
-                    $msg  = $class->getName() ;
-                    $msg .= ', path:' . $file->getTargetNamespace();
-                    $str[] = $msg;
-                }
-            } catch (Exception $e) {
-                echo $e->getTraceAsString();
+                $txt[] = PHP_EOL . "\t";
+                $txt[] = str_pad($class->getFileID(), 8, ' ');
+                $txt[] = str_pad($class->getnamespace(), 20, ' ');
+
             }
-
+            $str[] = implode(' ', $txt);
         }
-
-        /*
-        $str .= 'interfaces in Registry: ' . $this->countInterfaceRegistry() . PHP_EOL;
-        foreach ($this->interfaceRegistry as $class => $id) {
-            $str .= str_pad($id, 12, ' ') . $class . PHP_EOL;
-        }
-        */
 
         return implode(PHP_EOL, $str);
     }
 
-
+    /**
+     * Shows contant and statistics
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getDump();
+    }
 
     /**
      * Detects global namespaces (for Example \Exception)
@@ -236,12 +242,12 @@ class PhpFileRegistry
     {
 
         if (isset($this->classRegistry[$instantation->getName()])) {
-            echo "\t" . $instantation->getName() . ': ' . PHP_EOL;
+            #echo "\t" . $instantation->getName() . ': ' . PHP_EOL;
             foreach ($this->classRegistry[$instantation->getName()] as $class) {
-                echo "\t\t" . $class  . PHP_EOL;
+                #echo "\t\t" . $class  . PHP_EOL;
             }
         } else {
-            echo "\t" . $instantation->getName() . ' => not found' . PHP_EOL;
+            #echo "\t" . $instantation->getName() . ' => not found' . PHP_EOL;
             // not found: use in global context
             if (strpos($instantation->getName(), PhpFile::NS_SEPARATOR) !== 0) {
                 return PhpFile::NS_SEPARATOR . $instantation->getName();

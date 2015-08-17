@@ -265,8 +265,8 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($expected[$i], $res);
 
             $insertIntoRegistry->invoke($registry, $itemClass);
-        }
 
+        }
 
     }
 

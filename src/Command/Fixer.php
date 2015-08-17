@@ -75,7 +75,13 @@ class Fixer extends Command
 
             $fixer = new PhpFileFixer($fileID, $phpFileRegistry);
             $fixer->run();
-            $this->output->writeln('FIX file: ' . $fileID . '  (' . $phpFileRegistry->getPhpFileById($fileID)->getAutoloadPath() . ')');
+
+            $txt   = [];
+            $txt[] = 'FIX file: ';
+            $txt[] = str_pad($fileID, 9, ' ');
+            $txt[] = $phpFileRegistry->getPhpFileById($fileID)->getAutoloadPath();
+
+            $this->output->writeln(implode(' ', $txt));
         }
 
     }
