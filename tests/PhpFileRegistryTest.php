@@ -22,7 +22,6 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
                 'fileList' => [
                     [
                         'getRealPath' => '/home/abc/test1.php',
-                        'getFileName' => 'test1.php',
                     ],
                 ],
                 'expected' => 1,
@@ -32,11 +31,9 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
                 'fileList' => [
                     [
                         'getRealPath' => '/home/abc/test1.php',
-                        'getFileName' => 'test1.php',
                     ],
                     [
                         'getRealPath' => '/home/abc/test2.php',
-                        'getFileName' => 'test2.php',
                     ],
                 ],
                 'expected' => 2,
@@ -93,17 +90,18 @@ class GetStaticCallsTest extends \PHPUnit_Framework_TestCase
             'getID'                       => 'abc123',
             'getClassName'                => 'Foo',
             'getCorrectNamespaceForClass' => 'Legacy\\Code',
+            'getRealpath'                 => '/fc/fc/fc'
         ];
 
         $mock = Tests\Helper::getFileMock([], $methods);
         $registry->addFile($mock);
 
         $methods = [
-            'getID'                       => 'xyz123',
+            'getID'                       => 'xzy789',
             'getClassName'                => 'Foo',
-            'getCorrectNamespaceForClass' => 'Cool\\Type',
+            'getCorrectNamespaceForClass' => 'Pretty\\Code',
+            'getRealpath'                 => '/mi/mi/mi'
         ];
-
 
         $mock = Tests\Helper::getFileMock([], $methods);
         $registry->addFile($mock);

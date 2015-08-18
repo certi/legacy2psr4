@@ -274,7 +274,6 @@ class PhpFile
         return implode(PHP_EOL, $array);
     }
 
-
     /**
      * Is the current Namespace correct?
      *

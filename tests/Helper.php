@@ -3,6 +3,7 @@
 namespace Certi\LegacypsrFour\Tests;
 
 use Certi\LegacypsrFour\PhpFile;
+use Mockery\CountValidator\Exception;
 use Symfony\Component\Finder\SplFileInfo;
 
 class Helper extends \PHPUnit_Framework_TestCase
@@ -45,18 +46,21 @@ class Helper extends \PHPUnit_Framework_TestCase
     {
         $fileMethods = [
             'getRealPath' => '/home/projects/legacypsrfour/Checker/Checker.php',
-            'getFileName' => 'Checker.php',
             'getContents' => '<?php' . PHP_EOL . 'echo 1;' . PHP_EOL,
         ];
 
-        // @todo: warning on unknown params
+        $fullClassName     = 'Symfony\Component\Finder\SplFileInfo';
+        $predefinedMethods = array_merge(array_keys($fileMethods), array_keys($fileParams));
+
+        self::checkMockMethods($fullClassName, $predefinedMethods);
+
         foreach ($fileMethods as $method => $return) {
             if (isset($fileParams[$method])) {
                 $fileMethods[$method] = $fileParams[$method];
             }
         }
 
-        $mock = self::getInstance()->getMock('Symfony\Component\Finder\SplFileInfo', array_keys($fileMethods), [], '', false);
+        $mock = self::getInstance()->getMock($fullClassName, array_keys($fileMethods), [], '', false);
         foreach ($fileMethods as $method => $return) {
             $mock->method($method)->willReturn($return);
         }
@@ -64,6 +68,24 @@ class Helper extends \PHPUnit_Framework_TestCase
         return $mock;
     }
 
+    /**
+     * Checks if only existing methods mocked
+     *
+     * @param $class
+     * @param $predefinedMethods
+     *
+     * @throws \Exception
+     */
+    protected static function checkMockMethods($class, $predefinedMethods)
+    {
+        $permittedMethods = get_class_methods($class);
+        $diffMethods      = array_diff(array_merge($predefinedMethods, $permittedMethods), $permittedMethods);
+
+        if ($diffMethods) {
+            throw new \Exception('You should not create the mock of %s class with not existing methods: %s' . print_r($diffMethods, 1));
+        }
+
+    }
 
     /**
      * @param $splFileInfoMock

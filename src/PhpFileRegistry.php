@@ -68,12 +68,14 @@ class PhpFileRegistry
     /**
      * How many files in registry
      * @return int
-     *
-     * @todo: rechne die gleichnamige Klassen drauf
      */
     public function countClassRegistry()
     {
-        return count($this->classRegistry);
+        $num = 0;
+        foreach ($this->classRegistry as $className => $classList) {
+            $num += count($classList);
+        }
+        return $num;
     }
 
     protected function addIntoFileRegistry(PhpFile $file)
@@ -96,12 +98,13 @@ class PhpFileRegistry
 
         if ($this->isClassDuplicated($classItem)) {
 
-            // @todo create full msg
-            #$msg  = sprintf('Class %s was already added', $file->getClassName()) . ', ' . $file->getRealPath();
-            #$prev = $this->classRegistry[$file->getClassName()];
-
-            $msg = 'abc';
-            throw new \Exception($msg);
+            $msg   = [];
+            $msg[] = sprintf('Class %s was already added', $classItem . ', path: ' . $file->getRealPath());
+            $msg[] = 'Another Files this the same ClassName:';
+            foreach ($this->classRegistry[$file->getClassName()] as $class) {
+                $msg[] = (string)$class . ', path:' . $this->getPhpFileById($class->getFileId())->getRealPath();
+            }
+            throw new \Exception(implode(PHP_EOL, $msg));
         }
 
         $this->insertIntoClassRegistry($classItem);

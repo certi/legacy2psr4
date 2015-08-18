@@ -18,7 +18,6 @@ class NamespaceFixer extends AbstractFixer
         } elseif (false === $this->file->isNamespaceCorrect()) {
             $this->replaceNamespace();
         }
-
     }
 
     /**
