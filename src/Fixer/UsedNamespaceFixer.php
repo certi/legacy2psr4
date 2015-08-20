@@ -15,9 +15,8 @@ class UsedNamespaceFixer extends AbstractFixer
     public function run()
     {
         // Check instantations
-
         $currentUseNamespaces = $this->file->getUsesNamespaces();
-        $shouldUseNamesapces  = [];
+        $shouldUseNamespaces  = [];
 
         $instantationList = $this->file->getInstantiations();
 
@@ -25,15 +24,13 @@ class UsedNamespaceFixer extends AbstractFixer
          * @var Instantation $instantation
          */
         foreach ($instantationList  as $instantation) {
-
             if (false == $this->registry->isGlobalScopeInstantation($instantation)) {
-                $shouldUseNamesapces[] = $this->registry->getUseNamespaceByInstantation($instantation);
+                $shouldUseNamespaces[] = $this->registry->getUseNamespaceByInstantation($instantation);
             }
-
         }
 
-        if (count($shouldUseNamesapces)) {
-            $this->fixUseNamespaces($currentUseNamespaces, $shouldUseNamesapces);
+        if (count($shouldUseNamespaces)) {
+            $this->fixUseNamespaces($currentUseNamespaces, $shouldUseNamespaces);
         }
 
     }

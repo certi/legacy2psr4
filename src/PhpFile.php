@@ -269,7 +269,7 @@ class PhpFile
      */
     public function replace($newContent, $position)
     {
-        $array  = preg_split("/" . PHP_EOL . "/", $this->getOriginalContent());
+        $array  = preg_split('/' . PHP_EOL . '/', $this->getOriginalContent());
         $array[$position] = $newContent;
         return implode(PHP_EOL, $array);
     }

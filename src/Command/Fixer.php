@@ -50,9 +50,17 @@ class Fixer extends Command
             $this->ns . PhpFile::NS_SEPARATOR;
         }
 
+        $output = $this->run($this->path);
+
+        $this->output->writeln($output);
+    }
+
+    public function run($path)
+    {
         $fileList = $this->getFiles($this->path);
 
-        $output->writeln('Found: ' . count($fileList), 'files.');
+        $output = [];
+        $output[] = 'Found: ' . count($fileList) . 'files.';
 
         $phpFileRegistry = new PhpFileRegistry();
 
@@ -66,10 +74,10 @@ class Fixer extends Command
 
             $phpFileRegistry->addFile($fileHandler);
 
-            $output->writeln((string)$fileHandler);
+            $output[] = (string)$fileHandler;
         }
 
-        $output->writeln((string)$phpFileRegistry);
+        $output[] = (string)$phpFileRegistry;
 
         foreach ($phpFileRegistry->getFileIdList() as $fileID) {
 
@@ -81,9 +89,10 @@ class Fixer extends Command
             $txt[] = str_pad($fileID, 9, ' ');
             $txt[] = $phpFileRegistry->getPhpFileById($fileID)->getAutoloadPath();
 
-            $this->output->writeln(implode(' ', $txt));
+            $output[] = implode(' ', $txt);
         }
 
+        return implode(PHP_EOL, $output);
     }
 
     /**
