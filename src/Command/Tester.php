@@ -11,6 +11,10 @@ use Symfony\Component\Finder;
 
 class Tester extends Command
 {
+    const FUNCTIONAL_TEST_IN_DIR      = 'in';
+    const FUNCTIONAL_TEST_OUT_DIR     = 'out';
+    const FUNCTIONAL_TEST_COMPARE_DIR = 'compare';
+
     /**
      * @var OutputInterface
      */
@@ -31,7 +35,7 @@ class Tester extends Command
     {
         $this->filter = $input->getArgument('filter');
         $this->output = $output;
-        $this->path   = realpath(__DIR__) . '../tests/functional/teststore/';
+        $this->path   = realpath(__DIR__) . '/../../tests/functional/teststore/';
 
         $dirList = $this->getDirs($this->path, $this->filter);
         if (count($dirList) == 0) {
@@ -40,18 +44,68 @@ class Tester extends Command
             exit;
         }
 
-        $this->runTests($dirList);
-
+        $res = $this->runTests($dirList);
+        $output->writeln($res);
     }
-
     protected function runTests($dirList)
     {
+        $fixer = new Fixer();
+        $base  = 'Abc\\Def';
+        $out   = [];
 
-        foreach ($dirList as $dir) {
+        foreach ($dirList as $dir)
+        {
+            $dir .= DIRECTORY_SEPARATOR;
+
+            $inputDirectory   = $dir . self::FUNCTIONAL_TEST_IN_DIR;
+            $outputDirectory  = $dir . self::FUNCTIONAL_TEST_OUT_DIR;
+            $compareDirectory = $dir . self::FUNCTIONAL_TEST_COMPARE_DIR;
+
+            $out[] = 'DIR: ' . $inputDirectory;
+
+            $this->clearDirectory($compareDirectory);
+
+            $res = $fixer->doit($inputDirectory, $base, $outputDirectory);
+
+            $out[] = $res;
+
+            $this->checkResults($outputDirectory, $compareDirectory);
 
         }
 
+        return implode(PHP_EOL, $out);
+
     }
+
+    protected function clearDirectory($directory)
+    {
+
+        if (!file_exists($directory)) {
+            mkdir($directory, 0775);
+            return;
+        }
+
+        $f = new Finder\Finder();
+        $f->ignoreDotFiles(true)
+            ->in($directory);
+
+        foreach ($f as $fil) {
+            if (is_dir($fil)) {
+                rmdir($fil);
+                continue;
+            }
+            unlink($fil);
+        }
+
+    }
+
+    protected function checkResults($outputDirectory, $compareDirectory)
+    {
+        // check struct -> number of files etc
+
+        // check content.
+    }
+
 
     /**
      * @param $path
@@ -63,7 +117,10 @@ class Tester extends Command
         $finder = new Finder\Finder();
         $finder
             ->directories()
-            ->in($path);
+            ->in($path)
+            ->ignoreDotFiles(true)
+            ->depth(0)
+        ;
 
         if (!empty($filter)) {
             $finder->name($filter);

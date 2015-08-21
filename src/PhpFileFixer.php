@@ -3,8 +3,11 @@
 namespace Certi\LegacypsrFour;
 
 
+use Certi\LegacypsrFour\Fixer\AbstractFixer;
+
 class PhpFileFixer
 {
+
     protected $fileID;
 
     /**
@@ -28,8 +31,15 @@ class PhpFileFixer
         $fixerList[] = new Fixer\NamespaceFixer($this->file, $this->registry);
         $fixerList[] = new Fixer\UsedNamespaceFixer($this->file, $this->registry);
 
+        /* @var AbstractFixer $fixer */
         foreach ($fixerList as $fixer) {
             $fixer->run();
         }
     }
+
+    public function persist($target = null)
+    {
+        $this->file->persist($target);
+    }
+
 }

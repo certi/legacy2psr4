@@ -5,5 +5,7 @@
 ### Example
 `php src/Runner.php certi:psr4fixer  Abc/Def ./src/`
 
+`php src/Runner.php certi:psr4tester
+
 ### Version
 pre alpha version!

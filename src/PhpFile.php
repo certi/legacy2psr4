@@ -248,15 +248,15 @@ class PhpFile
      */
     public function inject($content, $position)
     {
-        $array  = preg_split("/\n/", $this->getOriginalContent());
-        $begin  = array_slice($array, 0, $position);
+        $begin  = array_slice($this->currentContentArray, 0, $position);
         $inject = array($content);
-        $end    = array_slice($array, $position, count($array) - $position);
+        $end    = array_slice($this->currentContentArray, $position, count($this->currentContentArray) - $position);
 
         $res = array_merge($begin, $inject, $end);
 
-        $array = array_unique($res);
-        return implode(PHP_EOL, $array);
+        $this->currentContentArray = array_unique($res);
+
+        $this->reloadCurrentContentRaw();
     }
 
     /**
@@ -269,10 +269,15 @@ class PhpFile
      */
     public function replace($newContent, $position)
     {
-        $array  = preg_split('/' . PHP_EOL . '/', $this->getOriginalContent());
-        $array[$position] = $newContent;
-        return implode(PHP_EOL, $array);
+        $this->currentContentArray[$position] = $newContent;
+        $this->reloadCurrentContentRaw();
     }
+
+    protected function reloadCurrentContentRaw()
+    {
+        $this->currentContentRaw = implode(PHP_EOL, $this->currentContentArray);
+    }
+
 
     /**
      * Is the current Namespace correct?
@@ -281,7 +286,8 @@ class PhpFile
      *
      * @return bool
      */
-    public function isNamespaceCorrect() {
+    public function isNamespaceCorrect()
+    {
         if (0 == count($this->getCurrentNamespaces())) {
             return false;
         }
@@ -297,6 +303,16 @@ class PhpFile
             $ns = $this->getTargetNamespace();
         }
         return $ns;
+    }
+
+    public function persist($targetBaseDir = null)
+    {
+        if (empty($targetBaseDir)) {
+            $targetBaseDir = $this->file->getRealPath();
+        }
+        $targetFilePath = $targetBaseDir . DIRECTORY_SEPARATOR . $this->file->getRelativePathname();
+
+        file_put_contents($targetFilePath, $this->getCurrentContentRaw());
     }
 
 }

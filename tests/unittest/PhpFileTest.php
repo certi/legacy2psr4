@@ -35,8 +35,8 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
     public function injectTest($content, $injection, $position, $expected)
     {
         $file = Tests\Helper::getFileMock(['getContents' => $content]);
-        $res  = $file->inject($injection, $position);
-        $this->assertEquals($expected, $res);
+        $file->inject($injection, $position);
+        $this->assertEquals($expected, $file->getCurrentContentRaw());
     }
 
 
@@ -69,8 +69,8 @@ class PhpFileTest extends \PHPUnit_Framework_TestCase {
     public function replaceTest($content, $newContent, $position, $expected)
     {
         $file = Tests\Helper::getFileMock(['getContents' => $content]);
-        $res  = $file->replace($newContent, $position);
-        $this->assertEquals($expected, $res);
+        $file->replace($newContent, $position);
+        $this->assertEquals($expected, $file->getCurrentContentRaw());
     }
 
     public function dataProviderForGetAutoloadPathTest()

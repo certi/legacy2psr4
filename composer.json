@@ -6,7 +6,7 @@
     "autoload": {
         "psr-4": {
             "Certi\\LegacypsrFour\\": "src/",
-            "Certi\\LegacypsrFour\\Tests\\": "tests/"
+            "Certi\\LegacypsrFour\\Tests\\": "tests/unittest/"
         }
     },
     "require": {

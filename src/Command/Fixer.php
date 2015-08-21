@@ -15,51 +15,53 @@ use Symfony\Component\Finder;
 
 class Fixer extends Command
 {
-    protected $checkerList;
-    protected $ns;
-    protected $path;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
     protected function configure()
     {
         $this
             ->setName('certi:psr4fixer')
             ->setDescription('Converts legacy into psr4 conform!')
             ->addArgument('ns', InputArgument::REQUIRED, 'base namespace. use / instead of \\')
-            ->addArgument('path', InputArgument::REQUIRED, 'dirctory containst the legacy code')
+            ->addArgument('path', InputArgument::REQUIRED, 'directory containst the legacy code')
+            ->addArgument('target', InputArgument::OPTIONAL, 'target directory. Need if you want save')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->path   = $input->getArgument('path');
-        $this->ns     = $input->getArgument('ns');
-        $this->output = $output;
+        $path      = $input->getArgument('path');
+        $namespace = $input->getArgument('ns');
+        $target    = $input->getArgument('target');
 
-        if (!file_exists($this->path)) {
-            throw new \InvalidArgumentException('Path does not exists:' . $this->path);
+        if (!file_exists($path)) {
+            throw new \InvalidArgumentException('Path does not exists:' . $path);
         }
 
         // normalize ns
-        $this->ns = preg_replace('#/#', PhpFile::NS_SEPARATOR, $this->ns);
-        if (!preg_match('#' . PhpFile::NS_SEPARATOR . '$#', $this->ns)) {
-            $this->ns . PhpFile::NS_SEPARATOR;
+        $namespace = preg_replace('#/#', PhpFile::NS_SEPARATOR, $namespace);
+        if (!preg_match('#' . PhpFile::NS_SEPARATOR . '$#', $namespace)) {
+            $namespace .= PhpFile::NS_SEPARATOR;
         }
 
-        $output = $this->run($this->path);
+        $res = $this->doit((string)$path, $namespace, $target);
 
-        $this->output->writeln($output);
+        $output->writeln($res);
     }
 
-    public function run($path)
+    /**
+     * Fixes
+     *
+     * @todo: Move it into own class
+     *
+     * @param $path
+     * @param $namespace
+     * @return string
+     */
+    public function doit($path, $namespace, $target)
     {
-        $fileList = $this->getFiles($this->path);
 
-        $output = [];
+        $fileList = $this->getFiles($path);
+
+        $output   = [];
         $output[] = 'Found: ' . count($fileList) . 'files.';
 
         $phpFileRegistry = new PhpFileRegistry();
@@ -69,7 +71,7 @@ class Fixer extends Command
          */
         foreach ($fileList as $file) {
 
-            $fileHandler = new PhpFile($file, $this->path);
+            $fileHandler = new PhpFile($file, $path);
             $fileHandler->check();
 
             $phpFileRegistry->addFile($fileHandler);
@@ -83,6 +85,10 @@ class Fixer extends Command
 
             $fixer = new PhpFileFixer($fileID, $phpFileRegistry);
             $fixer->run();
+            if (!empty($target)) {
+                // save the changes only if target defined
+                $fixer->persist($target);
+            }
 
             $txt   = [];
             $txt[] = 'FIX file: ';
@@ -103,9 +109,11 @@ class Fixer extends Command
     protected function getFiles($path)
     {
         $finder = new Finder\Finder();
-        $finder->files()
-            ->in($path)->name('*.php')
-        ;
+        $finder
+            ->files()
+            ->in($path)
+            ->name('*.php');
         return $finder;
     }
+
 }
