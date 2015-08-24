@@ -38,13 +38,16 @@ class PhpFile
 
     protected $staticCalls = [];
 
-    public function __construct(Finder\SplFileInfo $file, $basePath)
+    protected $rootNamespace = '';
+
+    public function __construct(Finder\SplFileInfo $file, $basePath, $rootNamespace)
     {
         $this->file            = $file;
         $this->realPath        = $file->getRealPath();
         $this->currentFileName = $file->getFilename();
         $this->basePath        = realpath($basePath);
         $this->id              = sprintf('%x', crc32($this->getRealPath() . '#' . $file->getContents()));
+        $this->rootNamespace   = $rootNamespace;
 
         $this->currentContentRaw  = $file->getContents();
 
@@ -126,6 +129,14 @@ class PhpFile
         // delete file-extension
         $path = preg_replace('/(\..*)$/i', '', $path);
 
+
+        // simple.php + ns: Abc\De. Result: Abc\De\simple. shoul be Abc\De.
+        if (preg_match('/^(\/)?' . preg_quote($this->getClassName(), '/') . '$/i', $path)) {
+            $path = $this->getRootNamespace();
+        } else {
+            $path = $this->getRootNamespace() . self::NS_SEPARATOR . $path;
+        }
+
         // convert "/" in "\"
         $path = preg_replace('#/#', self::NS_SEPARATOR, $path);
 
@@ -190,6 +201,11 @@ class PhpFile
         return $this->basePath;
     }
 
+    public function getRootNamespace()
+    {
+        return $this->rootNamespace;
+    }
+
     /**
      * /home/abc/projects/legacy/something/dirty.php => something/dirty.php
      *
@@ -248,15 +264,26 @@ class PhpFile
      */
     public function inject($content, $position)
     {
-        $begin  = array_slice($this->currentContentArray, 0, $position);
-        $inject = array($content);
-        $end    = array_slice($this->currentContentArray, $position, count($this->currentContentArray) - $position);
+        $begin = array_slice($this->currentContentArray, 0, $position);
 
-        $res = array_merge($begin, $inject, $end);
+        if (is_array($content)) {
+            foreach ($content as $item) {
+                $begin[] = $item;
+            }
+        } else {
+            $begin[] = $content;
+        }
 
-        $this->currentContentArray = array_unique($res);
+        $end = array_slice($this->currentContentArray, $position, count($this->currentContentArray) - $position);
+
+        foreach ($end as $item) {
+            $begin[] = $item;
+        }
+        $this->currentContentArray = $begin;
 
         $this->reloadCurrentContentRaw();
+        return;
+
     }
 
     /**
@@ -269,7 +296,16 @@ class PhpFile
      */
     public function replace($newContent, $position)
     {
-        $this->currentContentArray[$position] = $newContent;
+        if (is_array($newContent)) {
+            if ($position + count($newContent) > count($this->currentContentArray)) {
+                throw new \Exception('The new content is larger als the piece between $position and EOF');
+            }
+            for ($i = 0; $i < count($newContent); ++$i) {
+                $newContent[$i+$position] = $newContent[$i];
+            }
+        } else {
+            $this->currentContentArray[$position] = $newContent;
+        }
         $this->reloadCurrentContentRaw();
     }
 

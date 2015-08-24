@@ -95,16 +95,18 @@ class Helper extends \PHPUnit_Framework_TestCase
      */
     protected static function getPhpFileMock($splFileInfoMock, array $mockParams = [])
     {
-        $basePath = isset($mockParams['getBasePath']) ? $mockParams['getBasePath'] : '';
-
+        $basePath      = isset($mockParams['getBasePath']) ? $mockParams['getBasePath'] : '';
+        $rootNamespace = isset($mockParams['rootNamespace']) ? $mockParams['rootNamespace'] : '';
         $mockDefaultParams = [
-            'getBasePath' => '',
+            'getBasePath'   => '',
+            'rootNamespace' => 'Abc\\Yxz',
         ];
         $mockParams = array_merge($mockDefaultParams, $mockParams);
 
         $constructParams = [
             $splFileInfoMock,
-            $basePath
+            $basePath,
+            $rootNamespace,
         ];
 
         $mock = self::getInstance()->getMock('Certi\LegacypsrFour\PhpFile', array_keys($mockParams), $constructParams, '', true);

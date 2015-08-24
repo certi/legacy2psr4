@@ -1,6 +1,6 @@
 <?php
 
-namespace Basenamespace;
+namespace Abc\Def;
 
 class Simple
 {

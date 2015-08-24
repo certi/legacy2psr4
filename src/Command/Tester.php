@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Finder;
+use PHPUnit_Framework_TestCase as Phpunit;
 
 class Tester extends Command
 {
@@ -63,7 +64,7 @@ class Tester extends Command
 
             $out[] = 'DIR: ' . $inputDirectory;
 
-            $this->clearDirectory($compareDirectory);
+            $this->clearDirectory($outputDirectory);
 
             $res = $fixer->doit($inputDirectory, $base, $outputDirectory);
 
@@ -71,6 +72,7 @@ class Tester extends Command
 
             $this->checkResults($outputDirectory, $compareDirectory);
 
+            #$this->clearDirectory($outputDirectory);
         }
 
         return implode(PHP_EOL, $out);
@@ -101,7 +103,42 @@ class Tester extends Command
 
     protected function checkResults($outputDirectory, $compareDirectory)
     {
+
+
         // check struct -> number of files etc
+        // nimm alle dateien aus den beiden verzeichnisse
+        // sortiere nach path.
+        // passt die anzahl?
+        // passt jeder
+
+        /**
+         * @var Finder\SplFileInfo[] $outputFiles
+         */
+        $outputFiles = [];
+        $outputSplFileInfoCollection = $this->getFiles($outputDirectory);
+        foreach ($outputSplFileInfoCollection as $oFile) {
+            $outputFiles[] = $oFile;
+        }
+
+        /**
+         * @var Finder\SplFileInfo[] $compareFiles
+         */
+
+        $compareFiles = [];
+        $compareSplFileInfoCollection = $this->getFiles($compareDirectory);;
+        foreach ($compareSplFileInfoCollection as $oFile) {
+            $compareFiles[] = $oFile;
+        }
+        Phpunit::assertCount(count($compareFiles), $outputFiles);
+
+        for ($i = 0; $i < count($outputDirectory); ++$i) {
+
+            $oFile = $outputFiles[$i];
+            $cFile = $compareFiles[$i];
+
+
+            Phpunit::assertFileEquals($cFile->getRealPath(), $oFile->getRealPath());
+        }
 
         // check content.
     }
@@ -128,4 +165,22 @@ class Tester extends Command
 
         return $finder;
     }
+
+
+    /**
+     * @param $path
+     *
+     * @return Finder
+     */
+    protected function getFiles($path)
+    {
+        $finder = new Finder\Finder();
+        $finder
+            ->files()
+            ->in($path)
+            ->ignoreDotFiles(true)
+        ;
+        return $finder;
+    }
+
 }

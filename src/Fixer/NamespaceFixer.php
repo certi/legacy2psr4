@@ -25,10 +25,9 @@ class NamespaceFixer extends AbstractFixer
      */
     protected function addNamespace()
     {
-        $line = PHP_EOL
-              . 'namespace ' . $this->file->getTargetNamespace() . ';'
-              . PHP_EOL
-              ;
+        $line = [];
+        $line[] = 'namespace ' . $this->file->getTargetNamespace() . ';';
+        $line[] = '';
 
         $this->file->inject($line, 2);
     }
@@ -39,10 +38,9 @@ class NamespaceFixer extends AbstractFixer
     protected function replaceNamespace()
     {
         $currentNamespace = $this->file->getCurrentNamespaces()[0];
-
-        $line = PHP_EOL
-              . 'namespace ' . $this->file->getTargetNamespace() . ';'
-              . PHP_EOL;
+        $line = [];
+        $line[] = 'namespace ' . $this->file->getTargetNamespace() . ';';
+        $line[] = '';
 
         $this->file->replace($line, $currentNamespace->getIndex());
     }

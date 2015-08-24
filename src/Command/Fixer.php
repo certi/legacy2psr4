@@ -71,7 +71,7 @@ class Fixer extends Command
          */
         foreach ($fileList as $file) {
 
-            $fileHandler = new PhpFile($file, $path);
+            $fileHandler = new PhpFile($file, $path, $namespace);
             $fileHandler->check();
 
             $phpFileRegistry->addFile($fileHandler);
