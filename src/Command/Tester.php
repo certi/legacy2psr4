@@ -72,7 +72,7 @@ class Tester extends Command
 
             $this->checkResults($outputDirectory, $compareDirectory);
 
-            #$this->clearDirectory($outputDirectory);
+            // $this->clearDirectory($outputDirectory);
         }
 
         return implode(PHP_EOL, $out);
@@ -136,8 +136,9 @@ class Tester extends Command
             $oFile = $outputFiles[$i];
             $cFile = $compareFiles[$i];
 
-
+            // @todo: show diff.
             Phpunit::assertFileEquals($cFile->getRealPath(), $oFile->getRealPath());
+
         }
 
         // check content.

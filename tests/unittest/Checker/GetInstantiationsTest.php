@@ -5,6 +5,13 @@ namespace Certi\LegacypsrFour\Tests\Checker;
 use Certi\LegacypsrFour\Tests;
 use Certi\LegacypsrFour\Checker\GetInstantiations;
 
+/**
+ * Class GetInstantiationsTest
+ *
+ * @package Certi\LegacypsrFour\Tests\Checker
+ *
+ * @coversDefaultClass Certi\LegacypsrFour\Checker\GetInstantiations
+ */
 class GetInstantiationsTest extends \PHPUnit_Framework_TestCase
 {
 

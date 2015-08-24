@@ -129,12 +129,13 @@ class PhpFile
         // delete file-extension
         $path = preg_replace('/(\..*)$/i', '', $path);
 
-
         // simple.php + ns: Abc\De. Result: Abc\De\simple. shoul be Abc\De.
         if (preg_match('/^(\/)?' . preg_quote($this->getClassName(), '/') . '$/i', $path)) {
             $path = $this->getRootNamespace();
         } else {
-            $path = $this->getRootNamespace() . self::NS_SEPARATOR . $path;
+            if ($this->getRootNamespace()) {
+                $path = $this->getRootNamespace() . self::NS_SEPARATOR . $path;
+            }
         }
 
         // convert "/" in "\"
