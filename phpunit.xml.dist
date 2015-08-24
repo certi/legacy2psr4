@@ -13,9 +13,16 @@
     syntaxCheck="true"
     verbose="true">
 
+    <testsuites>
+        <testsuite name="Psr4Fixer">
+            <directory>tests/*/*/Test.php</directory>
+        </testsuite>
+    </testsuites>
+
     <filter>
         <whitelist>
             <directory suffix="Test.php">tests/unittest</directory>
         </whitelist>
     </filter>
+
 </phpunit>
