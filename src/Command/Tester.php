@@ -4,18 +4,17 @@ namespace Certi\LegacypsrFour\Command;
 
 use Certi\LegacypsrFour\Checker;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Tests\Helper\FormatterHelperTest;
 use Symfony\Component\Finder;
-use PHPUnit_Framework_TestCase as Phpunit;
 
 class Tester extends Command
 {
-    const FUNCTIONAL_TEST_IN_DIR      = 'in';
-    const FUNCTIONAL_TEST_OUT_DIR     = 'out';
-    const FUNCTIONAL_TEST_COMPARE_DIR = 'compare';
-
     /**
      * @var OutputInterface
      */
@@ -45,105 +44,58 @@ class Tester extends Command
             exit;
         }
 
-        $res = $this->runTests($dirList);
-        $output->writeln($res);
-    }
-    protected function runTests($dirList)
-    {
-        $fixer = new Fixer();
-        $base  = 'Abc\\Def';
-        $out   = [];
+        $params = [
+            'filter'  => $input->getArgument('filter'),
+            'path'    => realpath(__DIR__) . '/../../tests/functional/teststore/',
+            'dirList' => $dirList,
+        ];
 
-        foreach ($dirList as $dir)
-        {
-            $dir .= DIRECTORY_SEPARATOR;
+        $testRunner = new TestRunner($params);
+        $res        = $testRunner->run();
 
-            $inputDirectory   = $dir . self::FUNCTIONAL_TEST_IN_DIR;
-            $outputDirectory  = $dir . self::FUNCTIONAL_TEST_OUT_DIR;
-            $compareDirectory = $dir . self::FUNCTIONAL_TEST_COMPARE_DIR;
-
-            $out[] = 'DIR: ' . $inputDirectory;
-
-            $this->clearDirectory($outputDirectory);
-
-            $res = $fixer->doit($inputDirectory, $base, $outputDirectory);
-
-            $out[] = $res;
-
-            $this->checkResults($outputDirectory, $compareDirectory);
-
-            // $this->clearDirectory($outputDirectory);
-        }
-
-        return implode(PHP_EOL, $out);
+        $this->prepareResults($res, $this->output);
 
     }
 
-    protected function clearDirectory($directory)
+    /**
+     * Shows stats of functional tests
+     *
+     * @param \PHPUnit_Framework_TestResult $res
+     * @param OutputInterface $output
+     *
+     * @return \PHPUnit_Framework_TestResult
+     */
+    protected function prepareResults(\PHPUnit_Framework_TestResult $res, OutputInterface $output)
     {
+        $runnedTests = $res->count();
 
-        if (!file_exists($directory)) {
-            mkdir($directory, 0775);
-            return;
-        }
+        if ($res->failureCount() == 0 && $res->errorCount() == 0) {
+            $output->writeln('All ' . $runnedTests . ' tests successfully closed.');
+        } else {
 
-        $f = new Finder\Finder();
-        $f->ignoreDotFiles(true)
-            ->in($directory);
+            $output->writeln($runnedTests . ' tests at all. ' . $res->failureCount() . ' failures and ' . $res->errorCount() . ' errors.');
 
-        foreach ($f as $fil) {
-            if (is_dir($fil)) {
-                rmdir($fil);
-                continue;
+            /**
+             * @var \PHPUnit_Framework_TestFailure $failure
+             */
+            foreach ($res->failures() as $failure) {
+                $output->writeln('Failed Test name: ' . $failure->getTestName());
+                $output->writeln($failure->getExceptionAsString());
             }
-            unlink($fil);
+
+            /**
+             * @var \PHPUnit_Framework_TestFailure $error
+             */
+            foreach ($res->errors() as $error) {
+                $output->writeln('Error Test name: ' . $error->getTestName());
+                $output->writeln($error->getExceptionAsString());
+            }
+
         }
+
+        return $res;
 
     }
-
-    protected function checkResults($outputDirectory, $compareDirectory)
-    {
-
-
-        // check struct -> number of files etc
-        // nimm alle dateien aus den beiden verzeichnisse
-        // sortiere nach path.
-        // passt die anzahl?
-        // passt jeder
-
-        /**
-         * @var Finder\SplFileInfo[] $outputFiles
-         */
-        $outputFiles = [];
-        $outputSplFileInfoCollection = $this->getFiles($outputDirectory);
-        foreach ($outputSplFileInfoCollection as $oFile) {
-            $outputFiles[] = $oFile;
-        }
-
-        /**
-         * @var Finder\SplFileInfo[] $compareFiles
-         */
-
-        $compareFiles = [];
-        $compareSplFileInfoCollection = $this->getFiles($compareDirectory);;
-        foreach ($compareSplFileInfoCollection as $oFile) {
-            $compareFiles[] = $oFile;
-        }
-        Phpunit::assertCount(count($compareFiles), $outputFiles);
-
-        for ($i = 0; $i < count($outputDirectory); ++$i) {
-
-            $oFile = $outputFiles[$i];
-            $cFile = $compareFiles[$i];
-
-            // @todo: show diff.
-            Phpunit::assertFileEquals($cFile->getRealPath(), $oFile->getRealPath());
-
-        }
-
-        // check content.
-    }
-
 
     /**
      * @param $path
@@ -164,23 +116,6 @@ class Tester extends Command
             $finder->name($filter);
         }
 
-        return $finder;
-    }
-
-
-    /**
-     * @param $path
-     *
-     * @return Finder
-     */
-    protected function getFiles($path)
-    {
-        $finder = new Finder\Finder();
-        $finder
-            ->files()
-            ->in($path)
-            ->ignoreDotFiles(true)
-        ;
         return $finder;
     }
 
